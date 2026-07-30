@@ -4,8 +4,7 @@ import {
   Activity, 
   Lock, 
   User, 
-  AlertCircle, 
-  ArrowRight 
+  AlertCircle
 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -33,25 +32,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4 relative overflow-hidden">
-      {/* Dynamic Background Glow Elements */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
-
-      <div className="w-full max-w-md bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10">
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4">
+      
+      {/* Container Form */}
+      <div className="w-full max-w-md bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
+        
         {/* Header Branding */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 bg-gradient-to-tr from-teal-500 to-emerald-400 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-500/30 mb-4 transform hover:scale-105 transition-transform duration-300">
-            <Activity className="w-8 h-8 text-slate-950 stroke-[2.5]" />
+          <div className="w-12 h-12 bg-blue-50 text-blue-800 rounded-lg flex items-center justify-center mb-4 border border-blue-100">
+            <Activity className="w-7 h-7 stroke-[2.5]" />
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Nexa Clinic</h1>
-          <p className="text-slate-400 text-sm mt-1">Mini Clinic Information System</p>
+          <h1 className="text-2xl font-bold text-slate-800">Nexa Clinic</h1>
+          <p className="text-slate-500 text-sm mt-1">Mini Clinic Information System</p>
         </div>
 
         {/* Error Alert */}
         {errorMsg && (
-          <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/30 rounded-2xl flex items-center gap-3 text-rose-400 text-sm animate-shake">
-            <AlertCircle className="w-5 h-5 shrink-0" />
+          <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 text-red-600 text-sm">
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
             <span>{errorMsg}</span>
           </div>
         )}
@@ -59,29 +57,29 @@ export default function LoginPage() {
         {/* Form Login */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               Username
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <User className="w-5 h-5" />
               </div>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Masukkan username..."
-                className="w-full bg-slate-800/80 border border-slate-700/80 focus:border-teal-400 rounded-xl py-3 pl-11 pr-4 text-white text-sm placeholder-slate-500 outline-none transition-all duration-200"
+                placeholder="Masukkan username"
+                className="w-full bg-white border border-slate-300 focus:border-blue-700 focus:ring-1 focus:ring-blue-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-800 text-sm outline-none transition-colors"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
               Password
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <Lock className="w-5 h-5" />
               </div>
               <input
@@ -89,7 +87,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-slate-800/80 border border-slate-700/80 focus:border-teal-400 rounded-xl py-3 pl-11 pr-4 text-white text-sm placeholder-slate-500 outline-none transition-all duration-200"
+                className="w-full bg-white border border-slate-300 focus:border-blue-700 focus:ring-1 focus:ring-blue-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-800 text-sm outline-none transition-colors"
               />
             </div>
           </div>
@@ -97,23 +95,21 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-teal-500/25 flex items-center justify-center gap-2 transition-all duration-200 hover:shadow-teal-500/40 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="w-full bg-blue-800 hover:bg-blue-900 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-2"
           >
             {loading ? (
-              <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             ) : (
-              <>
-                <span>Masuk ke Aplikasi</span>
-                <ArrowRight className="w-4 h-4" />
-              </>
+              <span>Masuk</span>
             )}
           </button>
+           <footer className="mt-8 text-slate-400 text-xs text-center">
+        &copy; {new Date().getFullYear()} Nexa Clinic System
+      </footer>
         </form>
       </div>
 
-      <footer className="mt-8 text-slate-500 text-xs text-center">
-        © 2026 Nexa Clinic System • Powered by React.js & Node.js
-      </footer>
+     
     </div>
   );
 }
