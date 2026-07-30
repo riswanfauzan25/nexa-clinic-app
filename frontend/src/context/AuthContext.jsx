@@ -76,11 +76,12 @@ export const AuthProvider = ({ children }) => {
     if (user.role === 'Administrator') return true;
 
     // Jika user memiliki kustomisasi permissions di database
-    if (user.permissions && typeof user.permissions === 'object' && user.permissions[module]) {
-      return Array.isArray(user.permissions[module]) && user.permissions[module].includes(action);
+    if (user.permissions && typeof user.permissions === 'object') {
+      const modulePerms = user.permissions[module];
+      return Array.isArray(modulePerms) && modulePerms.includes(action);
     }
 
-    // Default permissions berdasarkan Role (jika belum di-kustom)
+    // Default permissions berdasarkan Role (hanya modul dasar)
     const roleDefaults = {
       Dokter: {
         dashboard: ['view'],

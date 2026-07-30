@@ -6,6 +6,9 @@ import Sidebar from './components/Sidebar';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import UserManagementPage from './pages/users/UserManagementPage';
 import PatientsPage from './pages/patients/PatientsPage';
+import PolyclinicsPage from './pages/polyclinics/PolyclinicsPage';
+import ProceduresPage from './pages/procedures/ProceduresPage';
+import MedicinesPage from './pages/medicines/MedicinesPage';
 
 function MainApp() {
   const { user, loading } = useAuth();
@@ -33,6 +36,12 @@ function MainApp() {
         return <UserManagementPage />;
       case 'patients':
         return <PatientsPage />;
+      case 'polyclinics':
+        return <PolyclinicsPage />;
+      case 'procedures':
+        return <ProceduresPage />;
+      case 'medicines':
+        return <MedicinesPage />;
       case 'registrations':
         return (
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">

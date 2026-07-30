@@ -11,18 +11,27 @@ import {
 const DEFAULT_ROLE_PERMISSIONS = {
   Administrator: {
     patients: ['view', 'create', 'edit', 'delete'],
+    polyclinics: ['view', 'create', 'edit', 'delete'],
+    procedures: ['view', 'create', 'edit', 'delete'],
+    medicines: ['view', 'create', 'edit', 'delete'],
     registrations: ['view', 'create', 'edit', 'delete'],
     queues: ['view', 'call', 'edit'],
     'medical-records': ['view', 'create', 'edit']
   },
   Dokter: {
     patients: ['view'],
+    polyclinics: [],
+    procedures: [],
+    medicines: [],
     registrations: ['view'],
     queues: ['view', 'call', 'edit'],
     'medical-records': ['view', 'create', 'edit']
   },
   'Petugas Pendaftaran': {
     patients: ['view', 'create', 'edit', 'delete'],
+    polyclinics: [],
+    procedures: [],
+    medicines: [],
     registrations: ['view', 'create', 'edit', 'delete'],
     queues: ['view', 'call', 'edit'],
     'medical-records': []
@@ -146,6 +155,21 @@ export default function UserTable({
                             {perms.patients && perms.patients.length > 0 && (
                               <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] border border-blue-200">
                                 Pasien ({perms.patients.join(',')})
+                              </span>
+                            )}
+                            {perms.polyclinics && perms.polyclinics.length > 0 && (
+                              <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[10px] border border-indigo-200">
+                                Poli ({perms.polyclinics.join(',')})
+                              </span>
+                            )}
+                            {perms.procedures && perms.procedures.length > 0 && (
+                              <span className="px-2 py-0.5 bg-teal-50 text-teal-700 rounded text-[10px] border border-teal-200">
+                                Tindakan ({perms.procedures.join(',')})
+                              </span>
+                            )}
+                            {perms.medicines && perms.medicines.length > 0 && (
+                              <span className="px-2 py-0.5 bg-violet-50 text-violet-700 rounded text-[10px] border border-violet-200">
+                                Obat ({perms.medicines.join(',')})
                               </span>
                             )}
                             {perms.registrations && perms.registrations.length > 0 && (

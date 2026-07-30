@@ -8,18 +8,27 @@ import UserDeleteModal from './components/UserDeleteModal';
 const DEFAULT_ROLE_PERMISSIONS = {
   Administrator: {
     patients: ['view', 'create', 'edit', 'delete'],
+    polyclinics: ['view', 'create', 'edit', 'delete'],
+    procedures: ['view', 'create', 'edit', 'delete'],
+    medicines: ['view', 'create', 'edit', 'delete'],
     registrations: ['view', 'create', 'edit', 'delete'],
     queues: ['view', 'call', 'edit'],
     'medical-records': ['view', 'create', 'edit']
   },
   Dokter: {
     patients: ['view'],
+    polyclinics: [],
+    procedures: [],
+    medicines: [],
     registrations: ['view'],
     queues: ['view', 'call', 'edit'],
     'medical-records': ['view', 'create', 'edit']
   },
   'Petugas Pendaftaran': {
     patients: ['view', 'create', 'edit', 'delete'],
+    polyclinics: [],
+    procedures: [],
+    medicines: [],
     registrations: ['view', 'create', 'edit', 'delete'],
     queues: ['view', 'call', 'edit'],
     'medical-records': []
@@ -31,7 +40,7 @@ export default function UserManagementPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
-  // Alert Notifikasi Sukses 1x di Index
+  // Alert Notifikasi Sukses Global Banner
   const [globalSuccessAlert, setGlobalSuccessAlert] = useState('');
 
   // Pagination State
@@ -75,7 +84,6 @@ export default function UserManagementPage() {
     setCurrentPage(1);
   }, [search]);
 
-  // Auto clear notification alert setelah 4 detik
   useEffect(() => {
     if (globalSuccessAlert) {
       const timer = setTimeout(() => {

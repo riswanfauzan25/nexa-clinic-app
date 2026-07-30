@@ -8,12 +8,44 @@ Aplikasi Sistem Informasi Klinik Pratama berbasis web terintegrasi untuk membant
 
 | Komponen | Teknologi |
 | :--- | :--- |
-| **Frontend** | React.js (Vite), Tailwind CSS, Axios, Lucide React |
+| **Frontend** | React.js (Vite), Tailwind CSS, Axios, Lucide React, React Context |
 | **Backend** | Node.js, Express.js |
 | **Database** | MySQL (Driver `mysql2/promise`) |
 | **Authentication** | JSON Web Token (JWT) & Bcrypt Password Hashing |
 | **Security & RBAC** | Dynamic Granular Permission Checklist System (Spatie Style) |
 | **Version Control** | Git |
+
+---
+
+## 🌟 Fitur Utama & Proses Bisnis Sistem
+
+1. **Keamanan & Otorisasi RBAC Granular**:
+   - Sistem login JWT terenkripsi dengan hashing password `bcrypt`.
+   - **Matriks Hak Akses Checklist**: Pengaturan izin spesifik per modul & aksi (`view`, `create`, `edit`, `delete`) untuk seluruh modul master dan transaksi.
+   - Pengecekan otorisasi berlapis di Backend (Middleware `authorizeRoles`) dan Frontend (`hasPermission`).
+
+2. **Top Navbar & Dynamic Accordion Submenu Sidebar**:
+   - **Accordion Submenu Navigation**: Navigasi terkelompok (*Otorisasi System*, *Master Data*, *Pelayanan Klinik*) dengan panah expand/collapse yang ringkas dan tidak kepanjangan.
+   - **Auto-Filter RBAC**: Submenu dan kelompok menu otomatis disembunyikan jika user tidak memiliki izin akses.
+   - Profile Dropdown Box (Nama, Username, Badge Role, & Dialog Konfirmasi Logout).
+
+3. **Modul Kelola Pengguna (User Management)**:
+   - Manajemen akun pegawai, dokter, dan petugas pendaftaran.
+   - Pengaturan checklist hak akses modular per aksi.
+   - Pencarian real-time, pagination, modal form CRUD, & alert notifikasi sukses.
+
+4. **Katalog Master Data Lengkap (4 Modul Master)**:
+   - **Master Data Pasien**: Auto-generate Nomor Rekam Medis (`RM-YYYYMMDD-001`), validasi NIK 16 digit, Modal Detail Pasien + kalkulasi umur otomatis dari tanggal lahir.
+   - **Master Data Poliklinik (`polyclinics`)**: Katalog layanan spesialisasi poli (Poli Umum, Poli Gigi, Poli Anak) yang terhubung ke loket pendaftaran.
+   - **Master Data Tindakan Medis (`procedures`)**: Katalog kode tindakan medis (`TDK-001`) yang terhubung ke pemeriksaan Dokter (SOAP).
+   - **Master Data Obat-obatan (`medicines`)**: Katalog kode obat (`OBT-001`) beserta satuan kemasan (Tablet, Kaplet, Botol, Salep) yang terhubung ke Resep Dokter.
+
+5. **Modul Transaksional Pelayanan Klinik (Proses Bisnis Terintegrasi)**:
+   - **Pendaftaran Kunjungan Pasien (`registrations`)**: Mendaftarkan pasien berobat, memilih poli & dokter jaga, auto-generate nomor kunjungan (`REG-YYYYMMDD-001`).
+   - **Kelola Antrean Real-Time (`queues`)**: Penerbitan nomor antrean otomatis (`A001`), pemanggilan antrean loket/ruang dokter (`Waiting` ➔ `Calling` ➔ `Serving` ➔ `Completed`).
+   - **Pemeriksaan Dokter & SOAP (`medical_records`)**: Pencatatan data Subjektif, Objektif, Assessment, & Plan.
+   - **Input Tindakan Medis (`patient_procedures`)**: Mencatat rincian tindakan medis yang dilakukan dokter kepada pasien.
+   - **Input Resep Obat (`patient_prescriptions`)**: Mencatat rincian obat, dosis, dan aturan minum pasien.
 
 ---
 
@@ -47,17 +79,35 @@ JWT_EXPIRES_IN=1d
 
 ---
 
-## 🗄️ Cara Melakukan Migrasi Database (`database.sql`)
+## 🗄️ Struktur Database & Cara Migrasi (`database.sql`)
 
-1. Buka MySQL Client pilihan Anda (phpMyAdmin, Laragon MySQL, HeidiSQL, atau MySQL CLI).
+### Struktur 10 Tabel Database MySQL:
+
+```text
+db_nexa_clinic
+├── 🟢 KELOMPOK MASTER DATA
+│   ├── 1. users                  (Akun pegawai, password bcrypt, & permissions JSON)
+│   ├── 2. patients               (Data identitas pasien & No. Rekam Medis / NIK)
+│   ├── 3. polyclinics            (Data master poliklinik klinik)
+│   ├── 4. medicines              (Data master obat-obatan & satuan kemasan)
+│   └── 5. procedures             (Data master kode tindakan medis)
+│
+└── 🔵 KELOMPOK TRANSAKSIONAL PELAYANAN
+    ├── 6. registrations          (Data pendaftaran kunjungan pasien ke poli & dokter)
+    ├── 7. queues                 (Data nomor urut antrean & status pemanggilan A001)
+    ├── 8. medical_records        (Data rekam medis pemeriksaan Dokter / SOAP)
+    ├── 9. patient_procedures     (Data relasi tindakan medis yang diberikan ke pasien)
+    └── 10. patient_prescriptions (Data relasi resep obat & dosis yang diberikan ke pasien)
+```
+
+### Cara Migrasi Database:
+
+1. Buka Client MySQL (phpMyAdmin / Laragon MySQL / HeidiSQL / MySQL CLI).
 2. Buat database baru (opsional) atau langsung impor file **`database.sql`** yang tersedia di root folder project:
    ```bash
    mysql -u root -p < database.sql
    ```
-3. Script **`database.sql`** akan secara otomatis:
-   - Membuat database **`db_nexa_clinic`**.
-   - Membuat seluruh struktur tabel (`users`, `patients`, `polyclinics`, `registrations`, `queues`, `medical_records`, `medicines`, `prescriptions`, `actions`, `medical_record_actions`).
-   - Mengisikan data sampel awal (*seed data*) untuk pengujian.
+3. Script **`database.sql`** akan secara otomatis membuat 10 tabel di atas beserta data sampel awal (*seed data*) untuk pengujian.
 
 ---
 
@@ -119,13 +169,13 @@ Password untuk seluruh akun pengujian adalah: **`password123`**
 
 | Role / Hak Akses | Username | Password | Keterangan Izin |
 | :--- | :--- | :--- | :--- |
-| **Administrator** | `admin` | `password123` | Full access seluruh modul, kelola pengguna, & RBAC |
+| **Administrator** | `admin` | `password123` | Full access seluruh modul master, kelola pengguna, & RBAC |
 | **Dokter** | `dokter` | `password123` | Akses modul pemeriksaan SOAP, antrean, & resep obat |
 | **Petugas Pendaftaran** | `pendaftaran` | `password123` | Akses master pasien, pendaftaran kunjungan, & antrean |
 
 ---
 
-## 📁 Struktur Project
+## 📁 Struktur Project (Atomic Component Architecture)
 
 ```text
 nexa-clinic-app/
@@ -135,6 +185,7 @@ nexa-clinic-app/
 │   ├── controllers/
 │   │   ├── authController.js   # Controller Login, Logout, & Me
 │   │   ├── dashboardController.js # Controller Statistics & Summary
+│   │   ├── masterController.js # Controller CRUD Poliklinik, Procedures, & Medicines
 │   │   ├── patientController.js # Controller CRUD Master Pasien
 │   │   └── userController.js    # Controller CRUD Pengguna & RBAC
 │   ├── middleware/
@@ -142,6 +193,7 @@ nexa-clinic-app/
 │   ├── routes/
 │   │   ├── authRoutes.js       # API Routes Authentication
 │   │   ├── dashboardRoutes.js  # API Routes Dashboard
+│   │   ├── masterRoutes.js     # API Routes Master Data (Poli, Procedures, Medicines)
 │   │   ├── patientRoutes.js    # API Routes Patients
 │   │   └── userRoutes.js       # API Routes User Management
 │   ├── utils/
@@ -155,20 +207,26 @@ nexa-clinic-app/
 │   │   │   └── axios.js        # Axios Client & Interceptor JWT
 │   │   ├── components/
 │   │   │   ├── Navbar.jsx      # Top Header & Profile Dropdown
-│   │   │   └── Sidebar.jsx     # Navigation Bar filtered by RBAC
+│   │   │   └── Sidebar.jsx     # Accordion Submenu Navigation filtered by RBAC
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx # Global Auth & hasPermission Helper
-│   │   ├── pages/              # Domain-Driven Modular Pages Structure
+│   │   ├── pages/              # Domain-Driven Modular Pages & Components
 │   │   │   ├── auth/
 │   │   │   │   └── LoginPage.jsx
 │   │   │   ├── dashboard/
 │   │   │   │   └── DashboardPage.jsx
+│   │   │   ├── medicines/
+│   │   │   │   └── MedicinesPage.jsx # CRUD Master Obat-obatan
 │   │   │   ├── patients/
 │   │   │   │   ├── PatientsPage.jsx
-│   │   │   │   └── components/ (Table, FormModal, DetailModal, DeleteModal)
+│   │   │   │   └── components/ (PatientTable, FormModal, DetailModal, DeleteModal)
+│   │   │   ├── polyclinics/
+│   │   │   │   └── PolyclinicsPage.jsx # CRUD Master Poliklinik
+│   │   │   ├── procedures/
+│   │   │   │   └── ProceduresPage.jsx # CRUD Master Tindakan Medis
 │   │   │   └── users/
 │   │   │       ├── UserManagementPage.jsx
-│   │   │       └── components/ (Table, FormModal, DeleteModal)
+│   │   │       └── components/ (UserTable, UserFormModal, UserDeleteModal)
 │   │   ├── App.jsx             # Entrypoint Komponen React
 │   │   ├── index.css           # Custom Styling & Tailwind Imports
 │   │   └── main.jsx
@@ -176,7 +234,7 @@ nexa-clinic-app/
 │   └── package.json
 ├── .env.example                # Template Environment Variable Root
 ├── .gitignore                  # Menutup file .env agar tidak masuk git
-├── database.sql                # Schema Database & Initial Seed Data
+├── database.sql                # Schema Database 10 Tabel & Seed Data
 ├── ERD.md                      # Diagram ERD (Format Mermaid)
 └── README.md                   # Dokumentasi Resmi Aplikasi
 ```

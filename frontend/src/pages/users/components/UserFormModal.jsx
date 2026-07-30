@@ -170,9 +170,147 @@ export default function UserFormModal({
                   </div>
                 </div>
 
-                {/* Modul 2: Pendaftaran Pasien */}
+                {/* Modul 2: Master Poliklinik */}
                 <div className="bg-white p-3 border border-slate-200 rounded-lg space-y-2">
-                  <p className="font-bold text-slate-800 text-xs">2. Pendaftaran Kunjungan Pasien</p>
+                  <p className="font-bold text-slate-800 text-xs">2. Master Poliklinik</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={isChecked('polyclinics', 'view')}
+                        onChange={() => handleTogglePermission('polyclinics', 'view')}
+                        className="rounded border-slate-300 text-blue-800 focus:ring-blue-700"
+                      />
+                      <span>Lihat (Index)</span>
+                    </label>
+
+                    <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={isChecked('polyclinics', 'create')}
+                        onChange={() => handleTogglePermission('polyclinics', 'create')}
+                        className="rounded border-slate-300 text-blue-800 focus:ring-blue-700"
+                      />
+                      <span>Tambah</span>
+                    </label>
+
+                    <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={isChecked('polyclinics', 'edit')}
+                        onChange={() => handleTogglePermission('polyclinics', 'edit')}
+                        className="rounded border-slate-300 text-blue-800 focus:ring-blue-700"
+                      />
+                      <span>Edit</span>
+                    </label>
+
+                    <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={isChecked('polyclinics', 'delete')}
+                        onChange={() => handleTogglePermission('polyclinics', 'delete')}
+                        className="rounded border-slate-300 text-blue-800 focus:ring-blue-700"
+                      />
+                      <span>Hapus</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Modul 3: Master Tindakan Medis */}
+                <div className="bg-white p-3 border border-slate-200 rounded-lg space-y-2">
+                  <p className="font-bold text-slate-800 text-xs">3. Master Tindakan Medis</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={isChecked('procedures', 'view')}
+                        onChange={() => handleTogglePermission('procedures', 'view')}
+                        className="rounded border-slate-300 text-blue-800 focus:ring-blue-700"
+                      />
+                      <span>Lihat (Index)</span>
+                    </label>
+
+                    <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={isChecked('procedures', 'create')}
+                        onChange={() => handleTogglePermission('procedures', 'create')}
+                        className="rounded border-slate-300 text-blue-800 focus:ring-blue-700"
+                      />
+                      <span>Tambah</span>
+                    </label>
+
+                    <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={isChecked('procedures', 'edit')}
+                        onChange={() => handleTogglePermission('procedures', 'edit')}
+                        className="rounded border-slate-300 text-blue-800 focus:ring-blue-700"
+                      />
+                      <span>Edit</span>
+                    </label>
+
+                    <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={isChecked('procedures', 'delete')}
+                        onChange={() => handleTogglePermission('procedures', 'delete')}
+                        className="rounded border-slate-300 text-blue-800 focus:ring-blue-700"
+                      />
+                      <span>Hapus</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Modul 4: Master Obat-obatan */}
+                <div className="bg-white p-3 border border-slate-200 rounded-lg space-y-2">
+                  <p className="font-bold text-slate-800 text-xs">4. Master Obat-obatan</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={isChecked('medicines', 'view')}
+                        onChange={() => handleTogglePermission('medicines', 'view')}
+                        className="rounded border-slate-300 text-blue-800 focus:ring-blue-700"
+                      />
+                      <span>Lihat (Index)</span>
+                    </label>
+
+                    <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={isChecked('medicines', 'create')}
+                        onChange={() => handleTogglePermission('medicines', 'create')}
+                        className="rounded border-slate-300 text-blue-800 focus:ring-blue-700"
+                      />
+                      <span>Tambah</span>
+                    </label>
+
+                    <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={isChecked('medicines', 'edit')}
+                        onChange={() => handleTogglePermission('medicines', 'edit')}
+                        className="rounded border-slate-300 text-blue-800 focus:ring-blue-700"
+                      />
+                      <span>Edit</span>
+                    </label>
+
+                    <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={isChecked('medicines', 'delete')}
+                        onChange={() => handleTogglePermission('medicines', 'delete')}
+                        className="rounded border-slate-300 text-blue-800 focus:ring-blue-700"
+                      />
+                      <span>Hapus</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Modul 5: Pendaftaran Pasien */}
+                <div className="bg-white p-3 border border-slate-200 rounded-lg space-y-2">
+                  <p className="font-bold text-slate-800 text-xs">5. Pendaftaran Kunjungan Pasien</p>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
                       <input
@@ -216,9 +354,9 @@ export default function UserFormModal({
                   </div>
                 </div>
 
-                {/* Modul 3: Kelola Antrean */}
+                {/* Modul 6: Kelola Antrean */}
                 <div className="bg-white p-3 border border-slate-200 rounded-lg space-y-2">
-                  <p className="font-bold text-slate-800 text-xs">3. Kelola & Panggil Antrean</p>
+                  <p className="font-bold text-slate-800 text-xs">6. Kelola & Panggil Antrean</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
                       <input
@@ -242,9 +380,9 @@ export default function UserFormModal({
                   </div>
                 </div>
 
-                {/* Modul 4: Pemeriksaan Dokter (SOAP) */}
+                {/* Modul 7: Pemeriksaan Dokter (SOAP) */}
                 <div className="bg-white p-3 border border-slate-200 rounded-lg space-y-2">
-                  <p className="font-bold text-slate-800 text-xs">4. Pemeriksaan Dokter (SOAP)</p>
+                  <p className="font-bold text-slate-800 text-xs">7. Pemeriksaan Dokter (SOAP)</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     <label className="flex items-center gap-1.5 cursor-pointer text-slate-700">
                       <input

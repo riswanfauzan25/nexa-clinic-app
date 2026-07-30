@@ -145,9 +145,9 @@ CREATE TABLE IF NOT EXISTS patient_prescriptions (
 -- --------------------------------------------------------
 
 INSERT INTO users (name, username, password, role, permissions) VALUES
-('Administrator Utama', 'admin', '$2b$10$JHo7bp0mlAxGB998IjKNWudYtmc5DYRVTWCLjQo2jeykmC5qAgyfK', 'Administrator', '{"patients":["view","create","edit","delete"],"registrations":["view","create","edit","delete"],"queues":["view","call","edit"],"medical-records":["view","create","edit"]}'),
-('Dr. Budi Santoso, Sp.PD', 'dokter', '$2b$10$JHo7bp0mlAxGB998IjKNWudYtmc5DYRVTWCLjQo2jeykmC5qAgyfK', 'Dokter', '{"patients":["view"],"registrations":["view"],"queues":["view","call","edit"],"medical-records":["view","create","edit"]}'),
-('Siti Rahma (Pendaftaran)', 'pendaftaran', '$2b$10$JHo7bp0mlAxGB998IjKNWudYtmc5DYRVTWCLjQo2jeykmC5qAgyfK', 'Petugas Pendaftaran', '{"patients":["view","create","edit","delete"],"registrations":["view","create","edit","delete"],"queues":["view","call","edit"],"medical-records":[]}')
+('Administrator Utama', 'admin', '$2b$10$JHo7bp0mlAxGB998IjKNWudYtmc5DYRVTWCLjQo2jeykmC5qAgyfK', 'Administrator', '{"patients":["view","create","edit","delete"],"polyclinics":["view","create","edit","delete"],"procedures":["view","create","edit","delete"],"medicines":["view","create","edit","delete"],"registrations":["view","create","edit","delete"],"queues":["view","call","edit"],"medical-records":["view","create","edit"]}'),
+('Dr. Budi Santoso, Sp.PD', 'dokter', '$2b$10$JHo7bp0mlAxGB998IjKNWudYtmc5DYRVTWCLjQo2jeykmC5qAgyfK', 'Dokter', '{"patients":["view"],"polyclinics":[],"procedures":[],"medicines":[],"registrations":["view"],"queues":["view","call","edit"],"medical-records":["view","create","edit"]}'),
+('Siti Rahma (Pendaftaran)', 'pendaftaran', '$2b$10$JHo7bp0mlAxGB998IjKNWudYtmc5DYRVTWCLjQo2jeykmC5qAgyfK', 'Petugas Pendaftaran', '{"patients":["view","create","edit","delete"],"polyclinics":[],"procedures":[],"medicines":[],"registrations":["view","create","edit","delete"],"queues":["view","call","edit"],"medical-records":[]}')
 ON DUPLICATE KEY UPDATE id=id;
 
 INSERT INTO polyclinics (name, description) VALUES
