@@ -8,6 +8,27 @@ import {
   ChevronRight 
 } from 'lucide-react';
 
+const DEFAULT_ROLE_PERMISSIONS = {
+  Administrator: {
+    patients: ['view', 'create', 'edit', 'delete'],
+    registrations: ['view', 'create', 'edit', 'delete'],
+    queues: ['view', 'call', 'edit'],
+    'medical-records': ['view', 'create', 'edit']
+  },
+  Dokter: {
+    patients: ['view'],
+    registrations: ['view'],
+    queues: ['view', 'call', 'edit'],
+    'medical-records': ['view', 'create', 'edit']
+  },
+  'Petugas Pendaftaran': {
+    patients: ['view', 'create', 'edit', 'delete'],
+    registrations: ['view', 'create', 'edit', 'delete'],
+    queues: ['view', 'call', 'edit'],
+    'medical-records': []
+  }
+};
+
 export default function UserTable({
   displayedUsers,
   totalUsers,
@@ -31,6 +52,20 @@ export default function UserTable({
       default:
         return <span className="px-2.5 py-0.5 bg-blue-50 text-blue-800 border border-blue-200 font-semibold rounded text-[11px]">Petugas Pendaftaran</span>;
     }
+  };
+
+  const getUserPermissions = (u) => {
+    if (!u.permissions) {
+      return DEFAULT_ROLE_PERMISSIONS[u.role] || DEFAULT_ROLE_PERMISSIONS['Petugas Pendaftaran'];
+    }
+    if (typeof u.permissions === 'string') {
+      try {
+        return JSON.parse(u.permissions);
+      } catch (e) {
+        return DEFAULT_ROLE_PERMISSIONS[u.role] || DEFAULT_ROLE_PERMISSIONS['Petugas Pendaftaran'];
+      }
+    }
+    return u.permissions;
   };
 
   return (
@@ -92,62 +127,65 @@ export default function UserTable({
                 </td>
               </tr>
             ) : (
-              displayedUsers.map((u, index) => (
-                <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="p-3.5 pl-6 font-mono text-slate-500">{indexOfFirstUser + index + 1}</td>
-                  <td className="p-3.5 font-bold text-slate-900">{u.name}</td>
-                  <td className="p-3.5 font-mono text-slate-600">@{u.username}</td>
-                  <td className="p-3.5">{getRoleBadge(u.role)}</td>
-                  <td className="p-3.5">
-                    <div className="flex flex-wrap gap-1">
-                      {u.role === 'Administrator' ? (
-                        <span className="px-2 py-0.5 bg-slate-100 text-slate-800 rounded font-semibold text-[10px] border border-slate-300">
-                          Full Access All Modules
-                        </span>
-                      ) : (
-                        <>
-                          {(!u.permissions || u.permissions.patients?.length > 0) && (
-                            <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] border border-blue-200">
-                              Pasien ({u.permissions?.patients?.join(',') || 'view'})
-                            </span>
-                          )}
-                          {(!u.permissions || u.permissions.registrations?.length > 0) && (
-                            <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded text-[10px] border border-emerald-200">
-                              Pendaftaran ({u.permissions?.registrations?.join(',') || 'view'})
-                            </span>
-                          )}
-                          {(!u.permissions || u.permissions.queues?.length > 0) && (
-                            <span className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded text-[10px] border border-purple-200">
-                              Antrean ({u.permissions?.queues?.join(',') || 'view'})
-                            </span>
-                          )}
-                          {(!u.permissions || u.permissions['medical-records']?.length > 0) && (
-                            <span className="px-2 py-0.5 bg-cyan-50 text-cyan-700 rounded text-[10px] border border-cyan-200">
-                              SOAP Dokter ({u.permissions?.['medical-records']?.join(',') || 'view'})
-                            </span>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </td>
-                  <td className="p-3.5 text-right pr-6 space-x-2 whitespace-nowrap">
-                    <button
-                      onClick={() => onOpenEdit(u)}
-                      className="px-2.5 py-1 bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-800 border border-slate-300 rounded-md font-medium transition-colors cursor-pointer"
-                    >
-                      <Edit3 className="w-3.5 h-3.5 inline mr-1" />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => onOpenDelete(u)}
-                      className="px-2.5 py-1 bg-slate-100 hover:bg-red-100 text-slate-700 hover:text-red-700 border border-slate-300 rounded-md font-medium transition-colors cursor-pointer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5 inline mr-1" />
-                      Hapus
-                    </button>
-                  </td>
-                </tr>
-              ))
+              displayedUsers.map((u, index) => {
+                const perms = getUserPermissions(u);
+                return (
+                  <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-3.5 pl-6 font-mono text-slate-500">{indexOfFirstUser + index + 1}</td>
+                    <td className="p-3.5 font-bold text-slate-900">{u.name}</td>
+                    <td className="p-3.5 font-mono text-slate-600">@{u.username}</td>
+                    <td className="p-3.5">{getRoleBadge(u.role)}</td>
+                    <td className="p-3.5">
+                      <div className="flex flex-wrap gap-1">
+                        {u.role === 'Administrator' ? (
+                          <span className="px-2 py-0.5 bg-slate-100 text-slate-800 rounded font-semibold text-[10px] border border-slate-300">
+                            Full Access All Modules
+                          </span>
+                        ) : (
+                          <>
+                            {perms.patients && perms.patients.length > 0 && (
+                              <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] border border-blue-200">
+                                Pasien ({perms.patients.join(',')})
+                              </span>
+                            )}
+                            {perms.registrations && perms.registrations.length > 0 && (
+                              <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded text-[10px] border border-emerald-200">
+                                Pendaftaran ({perms.registrations.join(',')})
+                              </span>
+                            )}
+                            {perms.queues && perms.queues.length > 0 && (
+                              <span className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded text-[10px] border border-purple-200">
+                                Antrean ({perms.queues.join(',')})
+                              </span>
+                            )}
+                            {perms['medical-records'] && perms['medical-records'].length > 0 && (
+                              <span className="px-2 py-0.5 bg-cyan-50 text-cyan-700 rounded text-[10px] border border-cyan-200">
+                                SOAP Dokter ({perms['medical-records'].join(',')})
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-3.5 text-right pr-6 space-x-2 whitespace-nowrap">
+                      <button
+                        onClick={() => onOpenEdit(u)}
+                        className="px-2.5 py-1 bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-800 border border-slate-300 rounded-md font-medium transition-colors cursor-pointer"
+                      >
+                        <Edit3 className="w-3.5 h-3.5 inline mr-1" />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => onOpenDelete(u)}
+                        className="px-2.5 py-1 bg-slate-100 hover:bg-red-100 text-slate-700 hover:text-red-700 border border-slate-300 rounded-md font-medium transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 inline mr-1" />
+                        Hapus
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

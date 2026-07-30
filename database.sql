@@ -65,38 +65,40 @@ CREATE TABLE IF NOT EXISTS procedures (
 );
 
 -- --------------------------------------------------------
--- KELOMPOK 2: TABEL TRANSAKSIONAL
+-- KELOMPOK 2: TABEL TRANSAKSIONAL (PELAYANAN & REKAM MEDIS)
 -- --------------------------------------------------------
 
--- 6. Tabel Registrations (Pendaftaran Kunjungan)
+-- 6. Tabel Pendaftaran Kunjungan Pasien
 CREATE TABLE IF NOT EXISTS registrations (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    registration_number VARCHAR(20) NOT NULL UNIQUE,
     patient_id INT NOT NULL,
-    doctor_id INT NOT NULL,
     polyclinic_id INT NOT NULL,
-    visit_date DATE NOT NULL,
-    payment_method VARCHAR(50) NOT NULL,
-    chief_complaint TEXT,
-    status ENUM('Menunggu', 'Check In', 'Pemeriksaan', 'Selesai') DEFAULT 'Menunggu',
+    doctor_id INT NOT NULL,
+    registration_date DATE NOT NULL,
+    complaint TEXT,
+    status ENUM('Waiting', 'In Examination', 'Completed', 'Cancelled') DEFAULT 'Waiting',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE,
-    FOREIGN KEY (doctor_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (polyclinic_id) REFERENCES polyclinics(id) ON DELETE CASCADE
+    FOREIGN KEY (polyclinic_id) REFERENCES polyclinics(id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- 7. Tabel Queues (Antrean)
+-- 7. Tabel Antrean (Queue)
 CREATE TABLE IF NOT EXISTS queues (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    registration_id INT NOT NULL,
+    registration_id INT NOT NULL UNIQUE,
     queue_number VARCHAR(10) NOT NULL,
-    status ENUM('Menunggu', 'Dipanggil', 'Selesai') DEFAULT 'Menunggu',
+    status ENUM('Waiting', 'Calling', 'Serving', 'Completed', 'Skipped') DEFAULT 'Waiting',
+    called_at TIMESTAMP NULL,
+    completed_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (registration_id) REFERENCES registrations(id) ON DELETE CASCADE
 );
 
--- 8. Tabel Medical Records (Pemeriksaan SOAP Dokter)
+-- 8. Tabel Rekam Medis Dokter (SOAP)
 CREATE TABLE IF NOT EXISTS medical_records (
     id INT AUTO_INCREMENT PRIMARY KEY,
     registration_id INT NOT NULL,
@@ -142,10 +144,10 @@ CREATE TABLE IF NOT EXISTS patient_prescriptions (
 -- Password untuk semua akun bawaan: 'password123' (bcrypted)
 -- --------------------------------------------------------
 
-INSERT INTO users (name, username, password, role) VALUES
-('Administrator Utama', 'admin', '$2b$10$JHo7bp0mlAxGB998IjKNWudYtmc5DYRVTWCLjQo2jeykmC5qAgyfK', 'Administrator'),
-('Dr. Budi Santoso, Sp.PD', 'dokter', '$2b$10$JHo7bp0mlAxGB998IjKNWudYtmc5DYRVTWCLjQo2jeykmC5qAgyfK', 'Dokter'),
-('Siti Rahma (Pendaftaran)', 'pendaftaran', '$2b$10$JHo7bp0mlAxGB998IjKNWudYtmc5DYRVTWCLjQo2jeykmC5qAgyfK', 'Petugas Pendaftaran')
+INSERT INTO users (name, username, password, role, permissions) VALUES
+('Administrator Utama', 'admin', '$2b$10$JHo7bp0mlAxGB998IjKNWudYtmc5DYRVTWCLjQo2jeykmC5qAgyfK', 'Administrator', '{"patients":["view","create","edit","delete"],"registrations":["view","create","edit","delete"],"queues":["view","call","edit"],"medical-records":["view","create","edit"]}'),
+('Dr. Budi Santoso, Sp.PD', 'dokter', '$2b$10$JHo7bp0mlAxGB998IjKNWudYtmc5DYRVTWCLjQo2jeykmC5qAgyfK', 'Dokter', '{"patients":["view"],"registrations":["view"],"queues":["view","call","edit"],"medical-records":["view","create","edit"]}'),
+('Siti Rahma (Pendaftaran)', 'pendaftaran', '$2b$10$JHo7bp0mlAxGB998IjKNWudYtmc5DYRVTWCLjQo2jeykmC5qAgyfK', 'Petugas Pendaftaran', '{"patients":["view","create","edit","delete"],"registrations":["view","create","edit","delete"],"queues":["view","call","edit"],"medical-records":[]}')
 ON DUPLICATE KEY UPDATE id=id;
 
 INSERT INTO polyclinics (name, description) VALUES
