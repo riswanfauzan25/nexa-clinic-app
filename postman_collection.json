@@ -1,0 +1,596 @@
+{
+  "info": {
+    "_postman_id": "nexa-clinic-api-collection",
+    "name": "Nexa Clinic - REST API Collection",
+    "description": "Dokumentasi lengkap REST API untuk Sistem Informasi Klinik Nexa Clinic.\n\nBase URL: http://localhost:5000\n\nCara penggunaan:\n1. Jalankan backend server: cd backend && npm run dev\n2. Login menggunakan endpoint Auth/Login untuk mendapatkan token JWT\n3. Copy token dari response, lalu paste ke variabel {{token}} di Collection Variables\n4. Semua endpoint yang membutuhkan autentikasi akan otomatis menggunakan token tersebut\n\nAkun Default:\n- Admin: username=admin, password=password123\n- Dokter: username=dokter, password=password123\n- Pendaftaran: username=pendaftaran, password=password123",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "JWT Token hasil login. Isi setelah berhasil login."
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Auth - Autentikasi",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const res = pm.response.json();",
+                  "    if (res.data && res.data.token) {",
+                  "        pm.collectionVariables.set('token', res.data.token);",
+                  "        console.log('Token berhasil disimpan ke variabel collection!');",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"admin\",\n    \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login"]
+            },
+            "description": "Login untuk mendapatkan JWT Token. Token akan otomatis tersimpan ke variabel {{token}} jika berhasil."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "me"]
+            },
+            "description": "Mendapatkan data profil user yang sedang login berdasarkan JWT token."
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "logout"]
+            },
+            "description": "Logout dan invalidasi sesi aktif user."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📊 Dashboard - Statistik",
+      "item": [
+        {
+          "name": "Get Dashboard Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/dashboard/summary",
+              "host": ["{{base_url}}"],
+              "path": ["api", "dashboard", "summary"]
+            },
+            "description": "Mendapatkan statistik ringkasan: total pasien, kunjungan hari ini, antrean aktif, dan pendapatan."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👥 Patients - Master Data Pasien",
+      "item": [
+        {
+          "name": "Get All Patients",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/patients?page=1&limit=10&search=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients"],
+              "query": [
+                { "key": "page", "value": "1", "description": "Nomor halaman (default: 1)" },
+                { "key": "limit", "value": "10", "description": "Jumlah data per halaman (default: 10)" },
+                { "key": "search", "value": "", "description": "Kata kunci pencarian (NIK, Nama, atau No. RM)" }
+              ]
+            },
+            "description": "Mendapatkan daftar seluruh pasien dengan pagination dan fitur pencarian."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Patient by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/patients/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients", "1"]
+            },
+            "description": "Mendapatkan detail data satu pasien berdasarkan ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nik\": \"3201234567890001\",\n    \"name\": \"Budi Santoso\",\n    \"gender\": \"Laki-laki\",\n    \"birth_date\": \"1990-05-15\",\n    \"phone_number\": \"081234567890\",\n    \"address\": \"Jl. Merdeka No. 10, Jakarta Selatan\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/patients",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients"]
+            },
+            "description": "Menambahkan data pasien baru. No. Rekam Medis (RM) akan di-generate otomatis oleh sistem dengan format RM-YYYYMMDD-XXX."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Patient",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nik\": \"3201234567890001\",\n    \"name\": \"Budi Santoso Updated\",\n    \"gender\": \"Laki-laki\",\n    \"birth_date\": \"1990-05-15\",\n    \"phone_number\": \"089876543210\",\n    \"address\": \"Jl. Sudirman No. 5, Jakarta Pusat\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/patients/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients", "1"]
+            },
+            "description": "Memperbarui data pasien berdasarkan ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Patient",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/patients/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients", "1"]
+            },
+            "description": "Menghapus data pasien berdasarkan ID. (Hati-hati: data pasien yang terhapus tidak bisa dikembalikan)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏥 Polyclinics - Master Data Poliklinik",
+      "item": [
+        {
+          "name": "Get All Polyclinics",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/polyclinics?search=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "polyclinics"],
+              "query": [
+                { "key": "search", "value": "", "description": "Kata kunci pencarian nama poliklinik" }
+              ]
+            },
+            "description": "Mendapatkan daftar seluruh poliklinik yang tersedia."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Polyclinic by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/polyclinics/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "polyclinics", "1"]
+            },
+            "description": "Mendapatkan detail data satu poliklinik berdasarkan ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Polyclinic",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Poli Mata\",\n    \"description\": \"Pelayanan kesehatan dan pemeriksaan mata\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/polyclinics",
+              "host": ["{{base_url}}"],
+              "path": ["api", "polyclinics"]
+            },
+            "description": "Menambahkan data poliklinik baru. (Admin Only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Polyclinic",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Poli Mata Updated\",\n    \"description\": \"Pelayanan kesehatan mata & refraksi\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/polyclinics/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "polyclinics", "1"]
+            },
+            "description": "Memperbarui data poliklinik berdasarkan ID. (Admin Only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Polyclinic",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/polyclinics/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "polyclinics", "1"]
+            },
+            "description": "Menghapus data poliklinik berdasarkan ID. (Admin Only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🩺 Procedures - Master Tindakan Medis",
+      "item": [
+        {
+          "name": "Get All Procedures",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procedures?search=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "procedures"],
+              "query": [
+                { "key": "search", "value": "", "description": "Kata kunci pencarian kode atau nama tindakan" }
+              ]
+            },
+            "description": "Mendapatkan daftar seluruh tindakan medis yang tersedia."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Procedure by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procedures/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "procedures", "1"]
+            },
+            "description": "Mendapatkan detail satu tindakan medis berdasarkan ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Procedure",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"code\": \"TDK-005\",\n    \"name\": \"EKG / Elektrokardiogram\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/procedures",
+              "host": ["{{base_url}}"],
+              "path": ["api", "procedures"]
+            },
+            "description": "Menambahkan tindakan medis baru ke katalog. (Admin Only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Procedure",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"code\": \"TDK-005\",\n    \"name\": \"EKG / Elektrokardiogram (12 Lead)\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/procedures/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "procedures", "1"]
+            },
+            "description": "Memperbarui data tindakan medis berdasarkan ID. (Admin Only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Procedure",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procedures/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "procedures", "1"]
+            },
+            "description": "Menghapus data tindakan medis berdasarkan ID. (Admin Only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "💊 Medicines - Master Obat-obatan",
+      "item": [
+        {
+          "name": "Get All Medicines",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/medicines?search=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "medicines"],
+              "query": [
+                { "key": "search", "value": "", "description": "Kata kunci pencarian kode, nama, atau satuan obat" }
+              ]
+            },
+            "description": "Mendapatkan daftar seluruh obat-obatan dalam katalog."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Medicine by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/medicines/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "medicines", "1"]
+            },
+            "description": "Mendapatkan detail satu obat berdasarkan ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Medicine",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"code\": \"OBT-005\",\n    \"name\": \"Ibuprofen 400mg\",\n    \"unit\": \"Tablet\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/medicines",
+              "host": ["{{base_url}}"],
+              "path": ["api", "medicines"]
+            },
+            "description": "Menambahkan obat baru ke katalog. (Admin Only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Medicine",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"code\": \"OBT-005\",\n    \"name\": \"Ibuprofen 400mg (Generik)\",\n    \"unit\": \"Kaplet\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/medicines/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "medicines", "1"]
+            },
+            "description": "Memperbarui data obat berdasarkan ID. (Admin Only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Medicine",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/medicines/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "medicines", "1"]
+            },
+            "description": "Menghapus data obat berdasarkan ID. (Admin Only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🛡️ Users - Kelola Pengguna & RBAC",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users?page=1&limit=10&search=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "search", "value": "" }
+              ]
+            },
+            "description": "Mendapatkan daftar seluruh pengguna sistem. (Admin Only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Dr. Andi Wijaya\",\n    \"username\": \"dokter2\",\n    \"password\": \"password123\",\n    \"role\": \"Dokter\",\n    \"permissions\": {\n        \"patients\": [\"view\"],\n        \"polyclinics\": [],\n        \"procedures\": [],\n        \"medicines\": [],\n        \"registrations\": [\"view\"],\n        \"queues\": [\"view\", \"call\", \"edit\"],\n        \"medical-records\": [\"view\", \"create\", \"edit\"]\n    }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            },
+            "description": "Membuat akun pengguna baru dengan setting RBAC granular. (Admin Only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Dr. Andi Wijaya Sp.PD\",\n    \"username\": \"dokter2\",\n    \"role\": \"Dokter\",\n    \"permissions\": {\n        \"patients\": [\"view\"],\n        \"polyclinics\": [\"view\"],\n        \"procedures\": [\"view\"],\n        \"medicines\": [],\n        \"registrations\": [\"view\"],\n        \"queues\": [\"view\", \"call\", \"edit\"],\n        \"medical-records\": [\"view\", \"create\", \"edit\"]\n    }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/2",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "2"]
+            },
+            "description": "Memperbarui data dan hak akses pengguna. (Admin Only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/2",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "2"]
+            },
+            "description": "Menghapus akun pengguna berdasarkan ID. (Admin Only)"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

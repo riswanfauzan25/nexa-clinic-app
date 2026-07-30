@@ -49,6 +49,44 @@ Aplikasi Sistem Informasi Klinik Pratama berbasis web terintegrasi untuk membant
 
 ---
 
+## 📬 Dokumentasi REST API (Postman Collection)
+
+File Postman Collection tersedia di root folder proyek: **`postman_collection.json`**
+
+### Cara Import ke Postman:
+1. Buka aplikasi **Postman** di komputer Anda.
+2. Klik tombol **`Import`** di pojok kiri atas.
+3. Pilih tab **`File`** ➔ Klik **`Choose Files`**.
+4. Pilih file **`postman_collection.json`** dari folder root proyek ini.
+5. Klik **`Import`** — Collection akan langsung muncul di sidebar Postman.
+
+### Cara Penggunaan:
+1. Jalankan backend server terlebih dahulu: `cd backend && npm run dev`
+2. Buka folder **`🔐 Auth - Autentikasi`** ➔ Jalankan request **`Login`**
+3. Token JWT akan **otomatis tersimpan** ke variabel `{{token}}` (via Postman Test Script)
+4. Semua endpoint lain akan otomatis menggunakan token tersebut via `Authorization: Bearer {{token}}`
+
+### Daftar Endpoint API yang Tersedia:
+
+| Kelompok | Endpoint | Method | Auth |
+| :--- | :--- | :--- | :--- |
+| **Auth** | `/api/login` | POST | ❌ |
+| **Auth** | `/api/me` | GET | ✅ |
+| **Auth** | `/api/logout` | POST | ✅ |
+| **Dashboard** | `/api/dashboard/summary` | GET | ✅ |
+| **Patients** | `/api/patients` | GET, POST | ✅ |
+| **Patients** | `/api/patients/:id` | GET, PUT, DELETE | ✅ |
+| **Polyclinics** | `/api/polyclinics` | GET, POST | ✅ |
+| **Polyclinics** | `/api/polyclinics/:id` | GET, PUT, DELETE | ✅ |
+| **Procedures** | `/api/procedures` | GET, POST | ✅ |
+| **Procedures** | `/api/procedures/:id` | GET, PUT, DELETE | ✅ |
+| **Medicines** | `/api/medicines` | GET, POST | ✅ |
+| **Medicines** | `/api/medicines/:id` | GET, PUT, DELETE | ✅ |
+| **Users** | `/api/users` | GET, POST | ✅ Admin |
+| **Users** | `/api/users/:id` | PUT, DELETE | ✅ Admin |
+
+---
+
 ## 🔒 Ketentuan Keamanan & Environment Variables (`.env`)
 
 Aplikasi ini **100% mematuhi standar keamanan industri**:
