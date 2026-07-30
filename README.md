@@ -8,7 +8,7 @@ Aplikasi Sistem Informasi Klinik Pratama berbasis web terintegrasi untuk membant
 
 | Komponen | Teknologi |
 | :--- | :--- |
-| **Frontend** | React.js (Vite), Tailwind CSS, Axios, Lucide React, React Router |
+| **Frontend** | React.js (Vite), Tailwind CSS, Axios, Lucide React |
 | **Backend** | Node.js, Express.js |
 | **Database** | MySQL (Driver `mysql2/promise`) |
 | **Authentication** | JSON Web Token (JWT) & Bcrypt Password Hashing |
@@ -17,52 +17,59 @@ Aplikasi Sistem Informasi Klinik Pratama berbasis web terintegrasi untuk membant
 
 ---
 
-## 🌟 Fitur Utama Sistem
+## 🔒 Ketentuan Keamanan & Environment Variables (`.env`)
 
-1. **Keamanan & Otorisasi RBAC Granular**:
-   - Sistem login JWT terenkripsi dengan hashing password `bcrypt`.
-   - **Matriks Hak Akses Checklist**: Pengaturan izin spesifik per modul & aksi (`view`, `create`, `edit`, `delete`).
-   - Navigasi Sidebar dan tombol aksi ter-filter secara dinamis & real-time berbasis hak akses aktif.
+Aplikasi ini **100% mematuhi standar keamanan industri**:
+- **TIDAK ADA HARDCODE KREDENSIAL SENSITIF**: Seluruh konfigurasi sensitif (koneksi database, password, dan `JWT_SECRET`) dibaca secara ketat melalui file environment **`.env`** dan **TIDAK DI-HARDCODE** di dalam source code maupun repository Git.
+- **Wajib File `.env.example`**: Proyek ini menyertakan template **`.env.example`** di root folder dan folder `backend/`.
+- **Git Protection**: File `.env` yang berisi password asli diabaikan secara otomatis oleh Git melalui file **`.gitignore`**.
 
-2. **Top Navbar & Profile Dropdown**:
-   - Branding resmi Nexa Clinic.
-   - Profile Dropdown Box (Nama, Username, Badge Role, & Logout).
-   - Dialog Konfirmasi Logout (*Logout Confirmation Modal*).
+---
 
-3. **Dashboard Operasional Per-Role**:
-   - **Tampilan Dokter**: Fokus antrean pasien menunggu, pasien selesai diperiksa, & shortcut SOAP.
-   - **Tampilan Petugas Pendaftaran**: Fokus loket pendaftaran kunjungan & pemanggilan antrean.
-   - **Tampilan Administrator**: Executive summary 5 metrik utama & Matriks Checklist RBAC.
+## ⚙️ Konfigurasi File `.env`
 
-4. **Modul Kelola Pengguna (User Management)**:
-   - Manajemen akun pegawai, dokter, dan petugas pendaftaran.
-   - Pengaturan checklist hak akses modular.
-   - Pencarian real-time, pagination, modal form CRUD, & alert notifikasi sukses hapus.
+Sebelum menjalankan aplikasi, buat file **`.env`** di dalam folder `backend/` (atau salin dari `.env.example`):
 
-5. **Modul Master Data Pasien**:
-   - Auto-generate **Nomor Rekam Medis (No. RM)** otomatis: `RM-YYYYMMDD-001`.
-   - Validasi NIK 16 digit angka & pencegahan duplikasi NIK di database.
-   - Modal Detail Pasien lengkap dengan kalkulasi umur otomatis dari tanggal lahir.
-   - Pencarian real-time, pagination, modal form CRUD, & alert notifikasi sukses hapus.
+```env
+# Server Port Configuration
+PORT=5000
+
+# Database MySQL Configuration
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=db_nexa_clinic
+
+# JSON Web Token Secret Key & Expiration
+JWT_SECRET=nexaclinic_jwt_secret_key_2026_super_secret
+JWT_EXPIRES_IN=1d
+```
+
+---
+
+## 🗄️ Cara Melakukan Migrasi Database (`database.sql`)
+
+1. Buka MySQL Client pilihan Anda (phpMyAdmin, Laragon MySQL, HeidiSQL, atau MySQL CLI).
+2. Buat database baru (opsional) atau langsung impor file **`database.sql`** yang tersedia di root folder project:
+   ```bash
+   mysql -u root -p < database.sql
+   ```
+3. Script **`database.sql`** akan secara otomatis:
+   - Membuat database **`db_nexa_clinic`**.
+   - Membuat seluruh struktur tabel (`users`, `patients`, `polyclinics`, `registrations`, `queues`, `medical_records`, `medicines`, `prescriptions`, `actions`, `medical_record_actions`).
+   - Mengisikan data sampel awal (*seed data*) untuk pengujian.
 
 ---
 
 ## 🚀 Cara Instalasi & Jalankan Aplikasi
 
 ### 1. Prasyarat System
-- **Node.js**: v18.x atau versi terbaru.
+- **Node.js**: Version v18.x atau lebih baru.
 - **Database Server**: MySQL (Laragon / XAMPP / Native MySQL Server).
 
 ---
 
-### 2. Migrasi Database (`database.sql`)
-1. Buka MySQL Client / phpMyAdmin / HeidiSQL.
-2. Impor file **`database.sql`** yang berada di root project.
-3. Database `db_nexa_clinic` beserta 10 tabel dan data awal (*seed data*) akan otomatis terbuat.
-
----
-
-### 3. Setup & Jalankan Backend (Node.js / Express.js)
+### 2. Setup & Jalankan Backend (Node.js / Express.js)
 
 1. Masuk ke folder backend:
    ```bash
@@ -76,16 +83,6 @@ Aplikasi Sistem Informasi Klinik Pratama berbasis web terintegrasi untuk membant
    ```bash
    cp .env.example .env
    ```
-   *Isi konfigurasi `.env` yang disesuaikan:*
-   ```env
-   PORT=5000
-   DB_HOST=localhost
-   DB_USER=root
-   DB_PASSWORD=
-   DB_NAME=db_nexa_clinic
-   JWT_SECRET=nexaclinic_jwt_secret_key_2026_super_secret
-   JWT_EXPIRES_IN=1d
-   ```
 4. Jalankan backend server:
    ```bash
    # Mode Development (Auto Reload dengan Nodemon)
@@ -94,11 +91,11 @@ Aplikasi Sistem Informasi Klinik Pratama berbasis web terintegrasi untuk membant
    # Mode Production
    npm start
    ```
-   *Server backend akan berjalan di `http://localhost:5000`*
+   *Backend server akan berjalan di `http://localhost:5000`*
 
 ---
 
-### 4. Setup & Jalankan Frontend (React.js)
+### 3. Setup & Jalankan Frontend (React.js)
 
 1. Buka terminal baru dan masuk ke folder frontend:
    ```bash
@@ -112,7 +109,7 @@ Aplikasi Sistem Informasi Klinik Pratama berbasis web terintegrasi untuk membant
    ```bash
    npm run dev
    ```
-   *Aplikasi frontend akan berjalan di `http://localhost:3000`*
+   *Frontend aplikasi akan berjalan di `http://localhost:3000`*
 
 ---
 
@@ -134,7 +131,7 @@ Password untuk seluruh akun pengujian adalah: **`password123`**
 nexa-clinic-app/
 ├── backend/
 │   ├── config/
-│   │   └── database.js         # Pool Koneksi MySQL Driver
+│   │   └── database.js         # Pool Koneksi MySQL Driver (Process.env)
 │   ├── controllers/
 │   │   ├── authController.js   # Controller Login, Logout, & Me
 │   │   ├── dashboardController.js # Controller Statistics & Summary
@@ -149,8 +146,7 @@ nexa-clinic-app/
 │   │   └── userRoutes.js       # API Routes User Management
 │   ├── utils/
 │   │   └── response.js         # Standard Response JSON Helper
-│   ├── .env
-│   ├── .env.example
+│   ├── .env.example            # Template Environment Variable Backend
 │   ├── index.js                # Entrypoint server Express.js
 │   └── package.json
 ├── frontend/
@@ -162,25 +158,25 @@ nexa-clinic-app/
 │   │   │   └── Sidebar.jsx     # Navigation Bar filtered by RBAC
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx # Global Auth & hasPermission Helper
-│   │   ├── pages/
-│   │   │   ├── DashboardPage.jsx # Role-Based Dashboard View
-│   │   │   ├── LoginPage.jsx   # UI Login & Alert Auto-Dismiss
-│   │   │   ├── PatientsPage.jsx # CRUD Pasien, Detail, & Pagination
-│   │   │   └── UserManagementPage.jsx # CRUD User & RBAC Checklist Grid
+│   │   ├── pages/              # Domain-Driven Modular Pages Structure
+│   │   │   ├── auth/
+│   │   │   │   └── LoginPage.jsx
+│   │   │   ├── dashboard/
+│   │   │   │   └── DashboardPage.jsx
+│   │   │   ├── patients/
+│   │   │   │   ├── PatientsPage.jsx
+│   │   │   │   └── components/ (Table, FormModal, DetailModal, DeleteModal)
+│   │   │   └── users/
+│   │   │       ├── UserManagementPage.jsx
+│   │   │       └── components/ (Table, FormModal, DeleteModal)
 │   │   ├── App.jsx             # Entrypoint Komponen React
 │   │   ├── index.css           # Custom Styling & Tailwind Imports
 │   │   └── main.jsx
 │   ├── vite.config.js          # Vite Config & API Proxy
 │   └── package.json
-├── database.sql                # Database Schema & Initial Seed Data
+├── .env.example                # Template Environment Variable Root
+├── .gitignore                  # Menutup file .env agar tidak masuk git
+├── database.sql                # Schema Database & Initial Seed Data
 ├── ERD.md                      # Diagram ERD (Format Mermaid)
 └── README.md                   # Dokumentasi Resmi Aplikasi
 ```
-
----
-
-## 📋 Asumsi & Alur Bisnis Sistem
-
-1. **Auto-Generate Nomor Rekam Medis**: Format `RM-YYYYMMDD-001` terbuat otomatis saat pendaftaran pasien baru.
-2. **Dynamic Granular Permission System**: Setiap akun pegawai dapat dikustomisasi izinnya (misal: hanya boleh `view` tanpa `edit` atau `delete`).
-3. **Penyimpanan Password Aman**: Password tersimpan dalam format terenkripsi Bcrypt di database MySQL (`$2b$10$...`).

@@ -5,7 +5,7 @@ const { successResponse, errorResponse } = require('../utils/response');
 
 /**
  * Controller Login User
- * Endpoint: POST /login
+ * Endpoint: POST /api/login
  */
 const login = async (req, res) => {
   try {
@@ -47,7 +47,7 @@ const login = async (req, res) => {
       permissions
     };
 
-    const secretKey = process.env.JWT_SECRET || 'fallback_secret_key';
+    const secretKey = process.env.JWT_SECRET;
     const expiresIn = process.env.JWT_EXPIRES_IN || '1d';
 
     const token = jwt.sign(payload, secretKey, { expiresIn });
@@ -61,35 +61,36 @@ const login = async (req, res) => {
         role: user.role,
         permissions
       }
-    }, 'Login berhasil!');
+    }, 'Login berhasil.');
 
   } catch (error) {
-    console.error('Error saat login:', error);
+    console.error('Error login:', error);
     return errorResponse(res, 'Terjadi kesalahan pada server saat login.', error.message, 500);
   }
 };
 
 /**
  * Controller Logout User
- * Endpoint: POST /logout
+ * Endpoint: POST /api/logout
  */
 const logout = async (req, res) => {
-  return successResponse(res, null, 'Logout berhasil. Sesi telah diakhiri.');
+  try {
+    return successResponse(res, null, 'Logout berhasil.');
+  } catch (error) {
+    return errorResponse(res, 'Gagal logout.', error.message, 500);
+  }
 };
 
 /**
- * Controller Get Current Logged In User
- * Endpoint: GET /me
+ * Controller Get Current User Profile (Me)
+ * Endpoint: GET /api/me
  */
 const getMe = async (req, res) => {
   try {
-    const [rows] = await db.query(
-      'SELECT id, name, username, role, permissions, created_at FROM users WHERE id = ?',
-      [req.user.id]
-    );
+    const [rows] = await db.query('SELECT id, name, username, role, permissions, created_at FROM users WHERE id = ?', [req.user.id]);
 
     if (rows.length === 0) {
-      return errorResponse(res, 'User tidak ditemukan.', null, 404);
+      return errorResponse(res, 'Pengguna tidak ditemukan.', null, 404);
     }
 
     const user = rows[0];
@@ -101,9 +102,9 @@ const getMe = async (req, res) => {
       }
     }
 
-    return successResponse(res, user, 'Data profile pengguna berhasil diambil.');
+    return successResponse(res, user, 'Data profil pengguna berhasil diambil.');
   } catch (error) {
-    return errorResponse(res, 'Terjadi kesalahan pada server.', error.message, 500);
+    return errorResponse(res, 'Gagal mengambil data pengguna.', error.message, 500);
   }
 };
 

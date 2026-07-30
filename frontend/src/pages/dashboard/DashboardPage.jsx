@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import api from '../api/axios';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../api/axios';
 import { 
   Users, 
   UserCheck, 
@@ -93,9 +93,7 @@ export default function DashboardPage({ setActiveTab }) {
         </button>
       </div>
 
-      {/* ========================================================
-          ROLE VIEW 1: DOKTER (Fokus Pemeriksaan & Antrean Pasien)
-         ======================================================== */}
+      {/* ROLE VIEW 1: DOKTER */}
       {user?.role === 'Dokter' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -159,9 +157,7 @@ export default function DashboardPage({ setActiveTab }) {
         </div>
       )}
 
-      {/* ========================================================
-          ROLE VIEW 2: PETUGAS PENDAFTARAN (Fokus Loket & Antrean)
-         ======================================================== */}
+      {/* ROLE VIEW 2: PETUGAS PENDAFTARAN */}
       {user?.role === 'Petugas Pendaftaran' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -241,12 +237,9 @@ export default function DashboardPage({ setActiveTab }) {
         </div>
       )}
 
-      {/* ========================================================
-          ROLE VIEW 3: ADMINISTRATOR (Statistik + Matriks Checklist RBAC)
-         ======================================================== */}
+      {/* ROLE VIEW 3: ADMINISTRATOR */}
       {user?.role === 'Administrator' && (
         <div className="space-y-6">
-          {/* 5 Card Statistics Lengkap untuk Admin */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
               <div className="flex items-center justify-between">
@@ -316,7 +309,7 @@ export default function DashboardPage({ setActiveTab }) {
             </div>
           </div>
 
-          {/* MATRIKS CHECKLIST HAK AKSES ROLE (RBAC) KHUSUS ADMINISTRATOR */}
+          {/* MATRIKS CHECKLIST HAK AKSES ROLE (RBAC) */}
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
@@ -331,7 +324,6 @@ export default function DashboardPage({ setActiveTab }) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-              {/* Checklist 1: Role Dokter */}
               <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-200">
                   <div className="flex items-center gap-2">
@@ -370,7 +362,6 @@ export default function DashboardPage({ setActiveTab }) {
                 </ul>
               </div>
 
-              {/* Checklist 2: Role Petugas Pendaftaran */}
               <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-200">
                   <div className="flex items-center gap-2">
@@ -409,7 +400,6 @@ export default function DashboardPage({ setActiveTab }) {
                 </ul>
               </div>
 
-              {/* Checklist 3: Role Administrator */}
               <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-200">
                   <div className="flex items-center gap-2">
@@ -460,7 +450,6 @@ export default function DashboardPage({ setActiveTab }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-          {/* Dynamic Doctor List */}
           <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg">
             <p className="font-semibold text-slate-800 flex items-center gap-1.5 mb-2">
               <User className="w-4 h-4 text-blue-700" />
@@ -479,7 +468,6 @@ export default function DashboardPage({ setActiveTab }) {
             )}
           </div>
 
-          {/* Dynamic Polyclinic List */}
           <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg">
             <p className="font-semibold text-slate-800 flex items-center gap-1.5 mb-2">
               <Building2 className="w-4 h-4 text-emerald-700" />

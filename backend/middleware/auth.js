@@ -7,7 +7,7 @@ const { errorResponse } = require('../utils/response');
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   
-  // Format header biasanya: "Bearer <TOKEN>"
+  // Format header: "Bearer <TOKEN>"
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
@@ -15,10 +15,10 @@ const verifyToken = (req, res, next) => {
   }
 
   try {
-    const secretKey = process.env.JWT_SECRET || 'fallback_secret_key';
+    const secretKey = process.env.JWT_SECRET;
     const decoded = jwt.verify(token, secretKey);
     
-    // Menyimpan data payload user (id, name, username, role) ke request objek
+    // Menyimpan data payload user ke request objek
     req.user = decoded;
     next();
   } catch (error) {

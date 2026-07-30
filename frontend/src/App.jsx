@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import LoginPage from './pages/LoginPage';
+import LoginPage from './pages/auth/LoginPage';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
-import DashboardPage from './pages/DashboardPage';
-import UserManagementPage from './pages/UserManagementPage';
-import PatientsPage from './pages/PatientsPage';
+import DashboardPage from './pages/dashboard/DashboardPage';
+import UserManagementPage from './pages/users/UserManagementPage';
+import PatientsPage from './pages/patients/PatientsPage';
 
 function MainApp() {
   const { user, loading } = useAuth();
