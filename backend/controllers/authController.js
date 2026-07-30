@@ -11,12 +11,10 @@ const login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    // Validasi input
     if (!username || !password) {
       return errorResponse(res, 'Username dan password wajib diisi.', null, 400);
     }
 
-    // Cari user di database berdasarkan username
     const [rows] = await db.query('SELECT * FROM users WHERE username = ?', [username]);
 
     if (rows.length === 0) {
@@ -25,19 +23,28 @@ const login = async (req, res) => {
 
     const user = rows[0];
 
-    // Cek kecocokan password dengan hash di database
     const isPasswordMatch = await bcrypt.compare(password, user.password);
 
     if (!isPasswordMatch) {
       return errorResponse(res, 'Username atau password salah.', null, 401);
     }
 
-    // Buat JWT Payload & Token
+    // Parse permissions jika ada
+    let permissions = null;
+    if (user.permissions) {
+      try {
+        permissions = typeof user.permissions === 'string' ? JSON.parse(user.permissions) : user.permissions;
+      } catch (e) {
+        permissions = null;
+      }
+    }
+
     const payload = {
       id: user.id,
       name: user.name,
       username: user.username,
-      role: user.role
+      role: user.role,
+      permissions
     };
 
     const secretKey = process.env.JWT_SECRET || 'fallback_secret_key';
@@ -45,14 +52,14 @@ const login = async (req, res) => {
 
     const token = jwt.sign(payload, secretKey, { expiresIn });
 
-    // Kembalikan response sukses beserta token & data user (tanpa password)
     return successResponse(res, {
       token,
       user: {
         id: user.id,
         name: user.name,
         username: user.username,
-        role: user.role
+        role: user.role,
+        permissions
       }
     }, 'Login berhasil!');
 
@@ -76,9 +83,8 @@ const logout = async (req, res) => {
  */
 const getMe = async (req, res) => {
   try {
-    // req.user didapat dari middleware verifyToken
     const [rows] = await db.query(
-      'SELECT id, name, username, role, created_at FROM users WHERE id = ?',
+      'SELECT id, name, username, role, permissions, created_at FROM users WHERE id = ?',
       [req.user.id]
     );
 
@@ -86,7 +92,16 @@ const getMe = async (req, res) => {
       return errorResponse(res, 'User tidak ditemukan.', null, 404);
     }
 
-    return successResponse(res, rows[0], 'Data profile pengguna berhasil diambil.');
+    const user = rows[0];
+    if (user.permissions) {
+      try {
+        user.permissions = typeof user.permissions === 'string' ? JSON.parse(user.permissions) : user.permissions;
+      } catch (e) {
+        user.permissions = null;
+      }
+    }
+
+    return successResponse(res, user, 'Data profile pengguna berhasil diambil.');
   } catch (error) {
     return errorResponse(res, 'Terjadi kesalahan pada server.', error.message, 500);
   }

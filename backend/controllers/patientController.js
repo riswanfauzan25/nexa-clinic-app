@@ -24,7 +24,6 @@ const generateMedicalRecordNumber = async () => {
     }
   }
 
-  // Format 3 digit angka (001, 002, dst)
   const paddedNum = String(nextNumber).padStart(3, '0');
   return `${prefix}${paddedNum}`;
 };
@@ -49,12 +48,10 @@ const getPatients = async (req, res) => {
       queryParams = [searchPattern, searchPattern, searchPattern];
     }
 
-    // Hitung total data
     const countSql = `SELECT COUNT(*) as total FROM patients ${queryWhere}`;
     const [countRows] = await db.query(countSql, queryParams);
-    const totalData = countRows[0].total;
+    const totalRecords = countRows[0].total;
 
-    // Ambil data pasien sesuai pagination
     const dataSql = `
       SELECT * FROM patients 
       ${queryWhere} 
@@ -63,12 +60,12 @@ const getPatients = async (req, res) => {
     `;
     const [patients] = await db.query(dataSql, [...queryParams, limit, offset]);
 
-    const totalPages = Math.ceil(totalData / limit);
+    const totalPages = Math.ceil(totalRecords / limit) || 1;
 
     return successResponse(res, {
       patients,
       pagination: {
-        totalData,
+        totalRecords,
         totalPages,
         currentPage: page,
         limit
@@ -106,23 +103,20 @@ const getPatientById = async (req, res) => {
  */
 const createPatient = async (req, res) => {
   try {
-    const { nik, name, gender, birth_date, phone_number, address } = req.body;
+    const { nik, name, gender, birth_date, phone, phone_number, address } = req.body;
+    const finalPhone = phone_number || phone || null;
 
-    // Validasi Field Wajib
     if (!nik || !name || !gender || !birth_date) {
       return errorResponse(res, 'NIK, Nama, Jenis Kelamin, dan Tanggal Lahir wajib diisi.', null, 400);
     }
 
-    // Validasi Duplikasi NIK
     const [existingNik] = await db.query('SELECT id FROM patients WHERE nik = ?', [nik]);
     if (existingNik.length > 0) {
       return errorResponse(res, 'NIK sudah terdaftar. NIK tidak boleh duplikat.', null, 400);
     }
 
-    // Generate Auto Nomor Rekam Medis
     const medicalRecordNumber = await generateMedicalRecordNumber();
 
-    // Insert Pasien
     const sql = `
       INSERT INTO patients (medical_record_number, nik, name, gender, birth_date, phone_number, address)
       VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -133,11 +127,10 @@ const createPatient = async (req, res) => {
       name,
       gender,
       birth_date,
-      phone_number || null,
+      finalPhone,
       address || null
     ]);
 
-    // Ambil data pasien yang baru dibuat
     const [newPatient] = await db.query('SELECT * FROM patients WHERE id = ?', [result.insertId]);
 
     return successResponse(res, newPatient[0], 'Data pasien berhasil ditambahkan.', 201);
@@ -155,15 +148,14 @@ const createPatient = async (req, res) => {
 const updatePatient = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nik, name, gender, birth_date, phone_number, address } = req.body;
+    const { nik, name, gender, birth_date, phone, phone_number, address } = req.body;
+    const finalPhone = phone_number !== undefined ? phone_number : (phone !== undefined ? phone : undefined);
 
-    // Cek keberadaan pasien
     const [existing] = await db.query('SELECT * FROM patients WHERE id = ?', [id]);
     if (existing.length === 0) {
       return errorResponse(res, 'Data pasien tidak ditemukan.', null, 404);
     }
 
-    // Validasi NIK Unik jika NIK diubah
     if (nik && nik !== existing[0].nik) {
       const [existingNik] = await db.query('SELECT id FROM patients WHERE nik = ? AND id != ?', [nik, id]);
       if (existingNik.length > 0) {
@@ -182,7 +174,7 @@ const updatePatient = async (req, res) => {
       name || existing[0].name,
       gender || existing[0].gender,
       birth_date || existing[0].birth_date,
-      phone_number !== undefined ? phone_number : existing[0].phone_number,
+      finalPhone !== undefined ? finalPhone : existing[0].phone_number,
       address !== undefined ? address : existing[0].address,
       id
     ]);

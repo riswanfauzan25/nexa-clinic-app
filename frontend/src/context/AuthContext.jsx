@@ -17,7 +17,6 @@ export const AuthProvider = ({ children }) => {
         setToken(savedToken);
         setUser(JSON.parse(savedUser));
         try {
-          // Verifikasi keaslian token ke server
           const response = await api.get('/me');
           if (response.success) {
             setUser(response.data);
@@ -67,8 +66,47 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Helper mengecek Granular Permission user (Pengecekan berbasis view, create, edit, delete)
+   */
+  const hasPermission = (module, action = 'view') => {
+    if (!user) return false;
+    
+    // Administrator selalu punya akses penuh ke seluruh modul & aksi
+    if (user.role === 'Administrator') return true;
+
+    // Jika user memiliki kustomisasi permissions di database
+    if (user.permissions && typeof user.permissions === 'object' && user.permissions[module]) {
+      return Array.isArray(user.permissions[module]) && user.permissions[module].includes(action);
+    }
+
+    // Default permissions berdasarkan Role (jika belum di-kustom)
+    const roleDefaults = {
+      Dokter: {
+        dashboard: ['view'],
+        patients: ['view'],
+        registrations: ['view'],
+        queues: ['view', 'call', 'edit'],
+        'medical-records': ['view', 'create', 'edit']
+      },
+      'Petugas Pendaftaran': {
+        dashboard: ['view'],
+        patients: ['view', 'create', 'edit', 'delete'],
+        registrations: ['view', 'create', 'edit', 'delete'],
+        queues: ['view', 'call', 'edit']
+      }
+    };
+
+    const rolePerms = roleDefaults[user.role];
+    if (rolePerms && rolePerms[module]) {
+      return rolePerms[module].includes(action);
+    }
+
+    return false;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, logout, hasPermission }}>
       {children}
     </AuthContext.Provider>
   );
