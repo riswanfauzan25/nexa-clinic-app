@@ -142,9 +142,9 @@ CREATE TABLE IF NOT EXISTS patient_prescriptions (
 -- --------------------------------------------------------
 
 INSERT INTO users (name, username, password, role) VALUES
-('Administrator Utama', 'admin', '$2a$10$7vN3G3p3jG3k/bQ5n3kM0.v4sJ9y1vQ3l/zJ5w5Y.zJ5w5Y.zJ5w5', 'Administrator'),
-('Dr. Budi Santoso, Sp.PD', 'dokter', '$2a$10$7vN3G3p3jG3k/bQ5n3kM0.v4sJ9y1vQ3l/zJ5w5Y.zJ5w5Y.zJ5w5', 'Dokter'),
-('Siti Rahma (Pendaftaran)', 'pendaftaran', '$2a$10$7vN3G3p3jG3k/bQ5n3kM0.v4sJ9y1vQ3l/zJ5w5Y.zJ5w5Y.zJ5w5', 'Petugas Pendaftaran')
+('Administrator Utama', 'admin', '$2b$10$JHo7bp0mlAxGB998IjKNWudYtmc5DYRVTWCLjQo2jeykmC5qAgyfK', 'Administrator'),
+('Dr. Budi Santoso, Sp.PD', 'dokter', '$2b$10$JHo7bp0mlAxGB998IjKNWudYtmc5DYRVTWCLjQo2jeykmC5qAgyfK', 'Dokter'),
+('Siti Rahma (Pendaftaran)', 'pendaftaran', '$2b$10$JHo7bp0mlAxGB998IjKNWudYtmc5DYRVTWCLjQo2jeykmC5qAgyfK', 'Petugas Pendaftaran')
 ON DUPLICATE KEY UPDATE id=id;
 
 INSERT INTO polyclinics (name, description) VALUES
