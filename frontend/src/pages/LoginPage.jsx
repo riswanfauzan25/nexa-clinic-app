@@ -1,18 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
   Activity, 
   Lock, 
   User, 
-  AlertCircle
+  AlertCircle,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 export default function LoginPage() {
   const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  // Otomatis hilangkan pesan error setelah 4 detik
+  useEffect(() => {
+    if (errorMsg) {
+      const timer = setTimeout(() => {
+        setErrorMsg('');
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMsg]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,9 +70,9 @@ export default function LoginPage() {
           <p className="text-slate-500 text-sm mt-1">Mini Clinic Information System</p>
         </div>
 
-        {/* Error Alert */}
+        {/* Error Alert (Otomatis hilang setelah 4 detik) */}
         {errorMsg && (
-          <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 text-red-600 text-sm">
+          <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 text-red-600 text-sm animate-fade-in">
             <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
             <span>{errorMsg}</span>
           </div>
@@ -94,12 +107,20 @@ export default function LoginPage() {
                 <Lock className="w-5 h-5" />
               </div>
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={handlePasswordChange}
                 placeholder="••••••••"
-                className="w-full bg-white border border-slate-300 focus:border-blue-700 focus:ring-1 focus:ring-blue-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-800 text-sm outline-none transition-colors"
+                className="w-full bg-white border border-slate-300 focus:border-blue-700 focus:ring-1 focus:ring-blue-700 rounded-lg py-2.5 pl-10 pr-10 text-slate-800 text-sm outline-none transition-colors"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                title={showPassword ? "Sembunyikan Password" : "Tampilkan Password"}
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
             </div>
           </div>
 
