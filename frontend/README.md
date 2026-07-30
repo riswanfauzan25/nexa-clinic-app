@@ -1,16 +1,42 @@
-# React + Vite
+# Nexa Clinic Frontend - React.js (Vite) 🎨
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Modul Antarmuka Pengguna (Frontend Web Application) untuk **Nexa Clinic System** yang dibangun menggunakan React.js, Tailwind CSS, dan Lucide React.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠️ Teknologi Frontend
 
-## React Compiler
+- **Framework**: React.js 19
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS
+- **HTTP Client**: Axios (dengan Interceptor JWT Token)
+- **Icons**: Lucide React
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the Oxlint configuration
+## 🚀 Cara Menjalankan
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+1. Masuk ke folder `frontend`:
+   ```bash
+   cd frontend
+   ```
+2. Install dependensi:
+   ```bash
+   npm install
+   ```
+3. Jalankan server pengembang (Dev Server):
+   ```bash
+   npm run dev
+   ```
+4. Buka browser di URL: `http://localhost:3000`
+
+---
+
+## 🔑 Fitur Utama UI Frontend
+
+- **Authentication System**: Halaman Login modern dengan fitur Eye Toggle Show/Hide Password & Auto-Dismiss Error Alert.
+- **Top Header Navbar**: Full-width branding, Dropdown Profile Card, & Modal Konfirmasi Logout.
+- **Dynamic Sidebar Menu**: Filter navigasi otomatis berbasis `hasPermission` dan `user.role`.
+- **Role-Based Dashboard**: Tampilan khusus untuk Dokter, Petugas Pendaftaran, & Administrator.
+- **Modul Master Data Pasien**: Tabel responsive, pencarian real-time, server-side pagination, Modal Detail Pasien (kalkulasi umur otomatis), & Modal Form CRUD.
+- **Modul Kelola Pengguna (User Management)**: Modal form dengan Checklist Matriks RBAC Granular (View, Create, Edit, Delete per modul).

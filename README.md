@@ -1,6 +1,6 @@
-# Nexa Clinic - Mini Clinic Information System 🏥
+# Nexa Clinic - Integrated Hospital & Clinic Information System 🏥
 
-Aplikasi Sistem Informasi Klinik Pratama berbasis web terintegrasi untuk membantu proses administrasi pelayanan pasien, pendaftaran, pengelolaan antrean, hingga pencatatan pemeriksaan dokter (SOAP).
+Aplikasi Sistem Informasi Klinik Pratama berbasis web terintegrasi untuk membantu proses administrasi pelayanan pasien, otorisasi hak akses (RBAC Granular), pendaftaran kunjungan, pengelolaan antrean, hingga pencatatan pemeriksaan rekam medis dokter (SOAP).
 
 ---
 
@@ -12,7 +12,38 @@ Aplikasi Sistem Informasi Klinik Pratama berbasis web terintegrasi untuk membant
 | **Backend** | Node.js, Express.js |
 | **Database** | MySQL (Driver `mysql2/promise`) |
 | **Authentication** | JSON Web Token (JWT) & Bcrypt Password Hashing |
+| **Security & RBAC** | Dynamic Granular Permission Checklist System (Spatie Style) |
 | **Version Control** | Git |
+
+---
+
+## 🌟 Fitur Utama Sistem
+
+1. **Keamanan & Otorisasi RBAC Granular**:
+   - Sistem login JWT terenkripsi dengan hashing password `bcrypt`.
+   - **Matriks Hak Akses Checklist**: Pengaturan izin spesifik per modul & aksi (`view`, `create`, `edit`, `delete`).
+   - Navigasi Sidebar dan tombol aksi ter-filter secara dinamis & real-time berbasis hak akses aktif.
+
+2. **Top Navbar & Profile Dropdown**:
+   - Branding resmi Nexa Clinic.
+   - Profile Dropdown Box (Nama, Username, Badge Role, & Logout).
+   - Dialog Konfirmasi Logout (*Logout Confirmation Modal*).
+
+3. **Dashboard Operasional Per-Role**:
+   - **Tampilan Dokter**: Fokus antrean pasien menunggu, pasien selesai diperiksa, & shortcut SOAP.
+   - **Tampilan Petugas Pendaftaran**: Fokus loket pendaftaran kunjungan & pemanggilan antrean.
+   - **Tampilan Administrator**: Executive summary 5 metrik utama & Matriks Checklist RBAC.
+
+4. **Modul Kelola Pengguna (User Management)**:
+   - Manajemen akun pegawai, dokter, dan petugas pendaftaran.
+   - Pengaturan checklist hak akses modular.
+   - Pencarian real-time, pagination, modal form CRUD, & alert notifikasi sukses hapus.
+
+5. **Modul Master Data Pasien**:
+   - Auto-generate **Nomor Rekam Medis (No. RM)** otomatis: `RM-YYYYMMDD-001`.
+   - Validasi NIK 16 digit angka & pencegahan duplikasi NIK di database.
+   - Modal Detail Pasien lengkap dengan kalkulasi umur otomatis dari tanggal lahir.
+   - Pencarian real-time, pagination, modal form CRUD, & alert notifikasi sukses hapus.
 
 ---
 
@@ -91,9 +122,9 @@ Password untuk seluruh akun pengujian adalah: **`password123`**
 
 | Role / Hak Akses | Username | Password | Keterangan Izin |
 | :--- | :--- | :--- | :--- |
-| **Administrator** | `admin` | `password123` | Akses penuh ke seluruh modul & dashboard statistik |
-| **Dokter** | `dokter` | `password123` | Akses modul pemeriksaan SOAP, tindakan medis, & resep obat |
-| **Petugas Pendaftaran** | `pendaftaran` | `password123` | Akses master pasien, pendaftaran kunjungan, & panggil antrean |
+| **Administrator** | `admin` | `password123` | Full access seluruh modul, kelola pengguna, & RBAC |
+| **Dokter** | `dokter` | `password123` | Akses modul pemeriksaan SOAP, antrean, & resep obat |
+| **Petugas Pendaftaran** | `pendaftaran` | `password123` | Akses master pasien, pendaftaran kunjungan, & antrean |
 
 ---
 
@@ -103,42 +134,53 @@ Password untuk seluruh akun pengujian adalah: **`password123`**
 nexa-clinic-app/
 ├── backend/
 │   ├── config/
-│   │   └── database.js      # Koneksi database MySQL Pool
+│   │   └── database.js         # Pool Koneksi MySQL Driver
 │   ├── controllers/
-│   │   └── authController.js# Controller Login, Logout, Me
+│   │   ├── authController.js   # Controller Login, Logout, & Me
+│   │   ├── dashboardController.js # Controller Statistics & Summary
+│   │   ├── patientController.js # Controller CRUD Master Pasien
+│   │   └── userController.js    # Controller CRUD Pengguna & RBAC
 │   ├── middleware/
-│   │   └── auth.js          # JWT Verification & Role Authorization
+│   │   └── auth.js             # Verifikasi JWT & Otorisasi Roles
 │   ├── routes/
-│   │   └── authRoutes.js    # Routing REST API Auth
+│   │   ├── authRoutes.js       # API Routes Authentication
+│   │   ├── dashboardRoutes.js  # API Routes Dashboard
+│   │   ├── patientRoutes.js    # API Routes Patients
+│   │   └── userRoutes.js       # API Routes User Management
 │   ├── utils/
-│   │   └── response.js      # Helper standar JSON response API
+│   │   └── response.js         # Standard Response JSON Helper
 │   ├── .env
 │   ├── .env.example
-│   ├── index.js             # Entrypoint server Express.js
+│   ├── index.js                # Entrypoint server Express.js
 │   └── package.json
 ├── frontend/
 │   ├── src/
 │   │   ├── api/
-│   │   │   └── axios.js     # Axios instance & JWT Interceptor
+│   │   │   └── axios.js        # Axios Client & Interceptor JWT
+│   │   ├── components/
+│   │   │   ├── Navbar.jsx      # Top Header & Profile Dropdown
+│   │   │   └── Sidebar.jsx     # Navigation Bar filtered by RBAC
 │   │   ├── context/
-│   │   │   └── AuthContext.jsx # Global State Authentication
+│   │   │   └── AuthContext.jsx # Global Auth & hasPermission Helper
 │   │   ├── pages/
-│   │   │   └── LoginPage.jsx   # UI Halaman Login Modern
-│   │   ├── App.jsx          # Entrypoint komponen React
-│   │   ├── index.css        # Styling dasar & Tailwind import
+│   │   │   ├── DashboardPage.jsx # Role-Based Dashboard View
+│   │   │   ├── LoginPage.jsx   # UI Login & Alert Auto-Dismiss
+│   │   │   ├── PatientsPage.jsx # CRUD Pasien, Detail, & Pagination
+│   │   │   └── UserManagementPage.jsx # CRUD User & RBAC Checklist Grid
+│   │   ├── App.jsx             # Entrypoint Komponen React
+│   │   ├── index.css           # Custom Styling & Tailwind Imports
 │   │   └── main.jsx
-│   ├── vite.config.js       # Konfigurasi Vite & Proxy API
+│   ├── vite.config.js          # Vite Config & API Proxy
 │   └── package.json
-├── .gitignore               # Git ignore rule
-├── database.sql             # Schema Database & Initial Seed Data
-├── ERD.md                   # Diagram ERD dalam format Mermaid
-└── README.md                # Dokumentasi & Petunjuk Penggunaan
+├── database.sql                # Database Schema & Initial Seed Data
+├── ERD.md                      # Diagram ERD (Format Mermaid)
+└── README.md                   # Dokumentasi Resmi Aplikasi
 ```
 
 ---
 
 ## 📋 Asumsi & Alur Bisnis Sistem
 
-1. **Auto-Generate Nomor Rekam Medis**: Format `RM-YYYYMMDD-XXX` terbuat otomatis saat membuat pasien baru.
-2. **Auto-Generate Nomor Antrean**: Format `A001`, `A002` terbuat otomatis saat pasien didaftarkan ke poli.
-3. **Standar Pemeriksaan SOAP**: Dokter menginput *Subjective* (Keluhan), *Objective* (Tanda Vital), *Assessment* (Diagnosa), dan *Plan* (Terapi, Tindakan, & Resep Obat).
+1. **Auto-Generate Nomor Rekam Medis**: Format `RM-YYYYMMDD-001` terbuat otomatis saat pendaftaran pasien baru.
+2. **Dynamic Granular Permission System**: Setiap akun pegawai dapat dikustomisasi izinnya (misal: hanya boleh `view` tanpa `edit` atau `delete`).
+3. **Penyimpanan Password Aman**: Password tersimpan dalam format terenkripsi Bcrypt di database MySQL (`$2b$10$...`).
