@@ -116,7 +116,7 @@ export default function UserTable({
               <th className="p-3.5">Nama Pengguna</th>
               <th className="p-3.5">Username</th>
               <th className="p-3.5">Role System</th>
-              <th className="p-3.5">Hak Akses Modul Aktif</th>
+              <th className="p-3.5 max-w-xs">Hak Akses Modul Aktif</th>
               <th className="p-3.5 text-right pr-6">Aksi</th>
             </tr>
           </thead>
@@ -144,7 +144,7 @@ export default function UserTable({
                     <td className="p-3.5 font-bold text-slate-900">{u.name}</td>
                     <td className="p-3.5 font-mono text-slate-600">@{u.username}</td>
                     <td className="p-3.5">{getRoleBadge(u.role)}</td>
-                    <td className="p-3.5">
+                    <td className="p-3.5 max-w-xs">
                       <div className="flex flex-wrap gap-1">
                         {u.role === 'Administrator' ? (
                           <span className="px-2 py-0.5 bg-slate-100 text-slate-800 rounded font-semibold text-[10px] border border-slate-300">
