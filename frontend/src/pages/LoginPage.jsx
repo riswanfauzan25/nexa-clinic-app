@@ -17,6 +17,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
+
     if (!username || !password) {
       setErrorMsg('Username dan password wajib diisi.');
       return;
@@ -29,6 +30,16 @@ export default function LoginPage() {
     if (!result.success) {
       setErrorMsg(result.message);
     }
+  };
+
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value);
+    if (errorMsg) setErrorMsg('');
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    if (errorMsg) setErrorMsg('');
   };
 
   return (
@@ -67,7 +78,7 @@ export default function LoginPage() {
               <input
                 type="text"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={handleUsernameChange}
                 placeholder="Masukkan username"
                 className="w-full bg-white border border-slate-300 focus:border-blue-700 focus:ring-1 focus:ring-blue-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-800 text-sm outline-none transition-colors"
               />
@@ -85,7 +96,7 @@ export default function LoginPage() {
               <input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handlePasswordChange}
                 placeholder="••••••••"
                 className="w-full bg-white border border-slate-300 focus:border-blue-700 focus:ring-1 focus:ring-blue-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-800 text-sm outline-none transition-colors"
               />
@@ -95,7 +106,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-800 hover:bg-blue-900 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+            className="w-full bg-blue-800 hover:bg-blue-900 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-2 cursor-pointer"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -103,13 +114,12 @@ export default function LoginPage() {
               <span>Masuk</span>
             )}
           </button>
-           <footer className="mt-8 text-slate-400 text-xs text-center">
-        &copy; {new Date().getFullYear()} Nexa Clinic System
-      </footer>
+          
+          <footer className="mt-8 text-slate-400 text-xs text-center">
+            &copy; {new Date().getFullYear()} Nexa Clinic System
+          </footer>
         </form>
       </div>
-
-     
     </div>
   );
 }
