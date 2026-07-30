@@ -5,10 +5,7 @@ import {
   Lock, 
   User, 
   AlertCircle, 
-  ArrowRight, 
-  ShieldCheck, 
-  Stethoscope, 
-  ClipboardList 
+  ArrowRight 
 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -32,21 +29,6 @@ export default function LoginPage() {
 
     if (!result.success) {
       setErrorMsg(result.message);
-    }
-  };
-
-  // Quick fill untuk mempermudah testing evaluasi
-  const handleQuickFill = (userType) => {
-    setErrorMsg('');
-    if (userType === 'admin') {
-      setUsername('admin');
-      setPassword('password123');
-    } else if (userType === 'dokter') {
-      setUsername('dokter');
-      setPassword('password123');
-    } else if (userType === 'pendaftaran') {
-      setUsername('pendaftaran');
-      setPassword('password123');
     }
   };
 
@@ -127,41 +109,6 @@ export default function LoginPage() {
             )}
           </button>
         </form>
-
-        {/* Quick Fill Preset Accounts */}
-        <div className="mt-8 pt-6 border-t border-slate-800/80">
-          <p className="text-xs text-center text-slate-400 font-medium mb-3">
-            Akun Pengujian Demo (Klik untuk Autofill):
-          </p>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={() => handleQuickFill('admin')}
-              className="flex flex-col items-center justify-center p-2.5 bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 hover:border-teal-500/50 rounded-xl text-slate-300 hover:text-teal-400 transition-all text-xs gap-1.5 cursor-pointer"
-            >
-              <ShieldCheck className="w-4 h-4 text-amber-400" />
-              <span className="font-semibold">Admin</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleQuickFill('dokter')}
-              className="flex flex-col items-center justify-center p-2.5 bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 hover:border-teal-500/50 rounded-xl text-slate-300 hover:text-teal-400 transition-all text-xs gap-1.5 cursor-pointer"
-            >
-              <Stethoscope className="w-4 h-4 text-cyan-400" />
-              <span className="font-semibold">Dokter</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleQuickFill('pendaftaran')}
-              className="flex flex-col items-center justify-center p-2.5 bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 hover:border-teal-500/50 rounded-xl text-slate-300 hover:text-teal-400 transition-all text-xs gap-1.5 cursor-pointer"
-            >
-              <ClipboardList className="w-4 h-4 text-emerald-400" />
-              <span className="font-semibold">Pendaftaran</span>
-            </button>
-          </div>
-        </div>
       </div>
 
       <footer className="mt-8 text-slate-500 text-xs text-center">
