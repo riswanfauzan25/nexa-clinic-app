@@ -3,7 +3,6 @@ const router = express.Router();
 const { verifyToken, authorizeRoles } = require('../middleware/auth');
 const {
   getPolyclinics,
-  getPolyclinicById,
   createPolyclinic,
   updatePolyclinic,
   deletePolyclinic
@@ -12,7 +11,6 @@ const {
 router.use(verifyToken);
 
 router.get('/', getPolyclinics);
-router.get('/:id', getPolyclinicById);
 router.post('/', authorizeRoles('Administrator'), createPolyclinic);
 router.put('/:id', authorizeRoles('Administrator'), updatePolyclinic);
 router.delete('/:id', authorizeRoles('Administrator'), deletePolyclinic);
