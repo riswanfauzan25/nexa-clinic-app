@@ -41,13 +41,18 @@ app.get('/', (req, res) => {
   });
 });
 
-// Menyalakan server sekaligus tes koneksi database
-app.listen(PORT, async () => {
-  console.log(`Server berhasil berjalan di http://localhost:${PORT}`);
-  try {
-    await db.query('SELECT 1'); // Mengetes "ping" ke database
-    console.log('Berhasil terhubung ke database MySQL!');
-  } catch (error) {
-    console.log('Gagal terhubung ke database:', error.message);
-  }
-});
+if (process.env.VERCEL) {
+    // Jika di Vercel, gunakan export ini (Serverless)
+    module.exports = app;
+} else {
+    // Menyalakan server sekaligus tes koneksi database di Lokal (Laptop)
+    app.listen(PORT, async () => {
+      console.log(`Server berhasil berjalan di http://localhost:${PORT}`);
+      try {
+        await db.query('SELECT 1'); // Mengetes "ping" ke database
+        console.log('Berhasil terhubung ke database Supabase PostgreSQL!');
+      } catch (error) {
+        console.log('Gagal terhubung ke database:', error.message);
+      }
+    });
+}
