@@ -140,6 +140,27 @@ const createRegistration = async (req, res) => {
     const payMethod = payment_method || 'Umum';
     const chiefComplaint = complaint || '';
 
+    // Pengecekan Cegah Pendaftaran Ganda Pasien di Poli & Hari yang Sama (Status Masih Aktif)
+    const [existingActive] = await connection.query(
+      `SELECT r.id, r.status, poly.name AS polyclinic_name 
+       FROM registrations r
+       JOIN polyclinics poly ON r.polyclinic_id = poly.id
+       WHERE r.patient_id = ? AND r.polyclinic_id = ? 
+         AND DATE(r.visit_date) = CURDATE()
+         AND r.status IN ('Menunggu', 'Check In', 'Pemeriksaan', 'Sedang Diperiksa', 'Waiting', 'In Examination')`,
+      [patient_id, polyclinic_id]
+    );
+
+    if (existingActive.length > 0) {
+      await connection.rollback();
+      return errorResponse(
+        res,
+        `Pasien ini sudah terdaftar di ${existingActive[0].polyclinic_name} hari ini dengan status [${existingActive[0].status}]. Pendaftaran ganda tidak diperbolehkan.`,
+        null,
+        400
+      );
+    }
+
     // 1. Insert into registrations table
     const [regResult] = await connection.query(
       `INSERT INTO registrations (patient_id, doctor_id, polyclinic_id, visit_date, payment_method, chief_complaint, status)

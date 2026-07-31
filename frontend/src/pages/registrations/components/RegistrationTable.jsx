@@ -121,7 +121,7 @@ export default function RegistrationTable({
         <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
           <button
             onClick={onExportPDF}
-            className="px-3 py-2 bg-red-700 hover:bg-red-800 text-white font-semibold rounded-lg text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+            className="px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-lg text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
             title="Export / Cetak Laporan Pendaftaran ke PDF"
           >
             <FileText className="w-3.5 h-3.5" />
