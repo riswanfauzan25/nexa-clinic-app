@@ -8,7 +8,7 @@ export default function RegistrationTicketModal({ show, registration, onClose })
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-[100] animate-fade-in">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100] animate-fade-in">
       <div className="bg-white border border-slate-200 rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden">
         {/* Top bar (Hidden on print) */}
         <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between print:hidden">

@@ -17,24 +17,24 @@ export default function RegistrationFormModal({
 
   // Filter dokter secara dinamis berdasarkan poliklinik yang dipilih
   useEffect(() => {
-    if (formData.polyclinic_id) {
+    if (formData && formData.polyclinic_id) {
       const selectedPolyId = parseInt(formData.polyclinic_id, 10);
-      const docsInPoly = doctors.filter(d => d.polyclinic_id === selectedPolyId);
+      const docsInPoly = (doctors || []).filter(d => d && d.polyclinic_id === selectedPolyId);
       setFilteredDoctors(docsInPoly);
       
       // Reset pilihan dokter jika dokter sebelumnya tidak ada di poli baru
-      if (formData.doctor_id && !docsInPoly.some(d => d.id === parseInt(formData.doctor_id, 10))) {
+      if (formData.doctor_id && !docsInPoly.some(d => d && d.id === parseInt(formData.doctor_id, 10))) {
         setFormData(prev => ({ ...prev, doctor_id: '' }));
       }
     } else {
       setFilteredDoctors([]);
     }
-  }, [formData.polyclinic_id, doctors]);
+  }, [formData?.polyclinic_id, doctors]);
 
-  if (!show) return null;
+  if (!show || !formData) return null;
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-[100] animate-fade-in overflow-y-auto">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100] animate-fade-in overflow-y-auto">
       <div className="bg-white border border-slate-200 rounded-2xl p-6 max-w-lg w-full shadow-2xl relative my-auto">
         {/* Header Modal */}
         <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
