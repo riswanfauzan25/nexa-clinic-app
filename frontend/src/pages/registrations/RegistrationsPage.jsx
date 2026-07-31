@@ -58,18 +58,14 @@ export default function RegistrationsPage() {
   // Fetch data relasi untuk form dropdown
   const fetchMasterData = async () => {
     try {
-      const [resPatients, resPolys, resUsers] = await Promise.all([
-        api.get('/patients?limit=500'),
-        api.get('/polyclinics'),
-        api.get('/users')
-      ]);
-
+      const resPatients = await api.get('/patients?limit=500').catch(() => ({ success: false }));
       if (resPatients.success) setPatients(resPatients.data || []);
+
+      const resPolys = await api.get('/polyclinics').catch(() => ({ success: false }));
       if (resPolys.success) setPolyclinics(resPolys.data || []);
-      if (resUsers.success) {
-        const docUsers = (resUsers.data || []).filter(u => u.role === 'Dokter');
-        setDoctors(docUsers);
-      }
+
+      const resDocs = await api.get('/doctors').catch(() => ({ success: false }));
+      if (resDocs.success) setDoctors(resDocs.data || []);
     } catch (e) {
       console.error('Error fetching master data for registration:', e);
     }

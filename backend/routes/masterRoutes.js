@@ -19,6 +19,20 @@ const {
 // All master data routes require valid JWT Token
 router.use(verifyToken);
 
+// Endpoint mengambil daftar Dokter aktif (bisa diakses Admin & Pendaftaran)
+router.get('/doctors', async (req, res) => {
+  try {
+    const db = require('../config/database');
+    const { successResponse, errorResponse } = require('../utils/response');
+    const [doctors] = await db.query(
+      "SELECT id, name, username, polyclinic_id FROM users WHERE role = 'Dokter' ORDER BY name ASC"
+    );
+    return successResponse(res, doctors, 'Daftar dokter berhasil diambil.');
+  } catch (error) {
+    return errorResponse(res, 'Gagal mengambil daftar dokter.', error.message, 500);
+  }
+});
+
 // ==========================================
 // POLYCLINICS ROUTES
 // ==========================================
