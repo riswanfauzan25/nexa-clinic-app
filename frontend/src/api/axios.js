@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api',
+  // Kode ini akan membaca variabel lingkungan (Vite)
+  // Jika tidak ada, ia akan otomatis kembali ke localhost:5000
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json'
   }
