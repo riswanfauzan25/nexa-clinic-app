@@ -251,7 +251,7 @@ export default function RegistrationsPage() {
         setStatusFilter={setStatusFilter}
         dateFilter={dateFilter}
         setDateFilter={setDateFilter}
-        totalCount={registrations.length}
+        totalCount={regList.length}
         currentPage={currentPage}
         totalPages={totalPages}
         setCurrentPage={setCurrentPage}
