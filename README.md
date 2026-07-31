@@ -86,6 +86,9 @@ File Postman Collection tersedia di root folder proyek: **`postman_collection.js
 | **Queues Call** | `/api/queues/:id/call` | PUT | ✅ Authenticated |
 | **Queues Skip** | `/api/queues/:id/skip` | PUT | ✅ Authenticated |
 | **Queues Serve** | `/api/queues/:id/serve` | PUT | ✅ Authenticated |
+| **Medical Records Ready** | `/api/medical-records/ready` | GET | ✅ Authenticated |
+| **Medical Records** | `/api/medical-records` | GET, POST | ✅ Authenticated |
+| **Medical Records Detail** | `/api/medical-records/:id` | GET, PUT, DELETE | ✅ Authenticated |
 
 ---
 
@@ -227,10 +230,11 @@ nexa-clinic-app/
 │   │   ├── dashboardController.js   # Controller Statistics & Summary (Role-Aware)
 │   │   ├── patientController.js     # Controller CRUD Master Pasien (Role-Aware)
 │   │   ├── polyclinicController.js  # Controller CRUD Master Poliklinik
-│   │   ├── procedureController.js   # Controller CRUD Master Tindakan Medis
+│   │   ├── procedureController.js   # Controller CRUD Master Tindakan Medis (Filter Poli)
 │   │   ├── medicineController.js    # Controller CRUD Master Obat-obatan
 │   │   ├── registrationController.js # Controller Pendaftaran Kunjungan Pasien
 │   │   ├── queueController.js       # Controller Kelola & Panggil Antrean (Role-Aware)
+│   │   ├── medicalRecordController.js # Controller Rekam Medis SOAP & Resep Dokter
 │   │   └── userController.js        # Controller CRUD Pengguna & RBAC
 │   ├── middleware/
 │   │   └── auth.js                  # Verifikasi JWT & Otorisasi Roles
@@ -244,6 +248,7 @@ nexa-clinic-app/
 │   │   ├── registrationRoutes.js    # API Routes Pendaftaran Kunjungan
 │   │   ├── queueRoutes.js           # API Routes Kelola Antrean
 │   │   ├── doctorRoutes.js          # API Routes Daftar Dokter Aktif
+│   │   ├── medicalRecordRoutes.js   # API Routes Pemeriksaan & Rekam Medis SOAP
 │   │   └── userRoutes.js            # API Routes User Management
 │   ├── utils/
 │   │   └── response.js         # Standard Response JSON Helper

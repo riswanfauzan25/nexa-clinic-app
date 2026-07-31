@@ -11,7 +11,7 @@ const {
 router.use(verifyToken);
 
 router.get('/', getProcedures);
-router.post('/', authorizeRoles('Administrator'), createProcedure);
+router.post('/', authorizeRoles('Administrator', 'Dokter'), createProcedure);
 router.put('/:id', authorizeRoles('Administrator'), updateProcedure);
 router.delete('/:id', authorizeRoles('Administrator'), deleteProcedure);
 

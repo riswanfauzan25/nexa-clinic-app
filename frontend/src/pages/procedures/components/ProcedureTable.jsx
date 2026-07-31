@@ -1,4 +1,4 @@
-import { Stethoscope, Search, Edit3, Trash2, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Stethoscope, Search, Edit3, Trash2, RefreshCw, ChevronLeft, ChevronRight, Building2 } from 'lucide-react';
 
 export default function ProcedureTable({
   displayed, loading, search, setSearch, totalCount,
@@ -27,16 +27,17 @@ export default function ProcedureTable({
               <th className="p-3.5 pl-6">No</th>
               <th className="p-3.5">Kode Tindakan</th>
               <th className="p-3.5">Nama Tindakan Medis</th>
+              <th className="p-3.5">Poliklinik</th>
               {(canEdit || canDelete) && <th className="p-3.5 text-right pr-6">Aksi</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {loading ? (
-              <tr><td colSpan="4" className="text-center py-10 text-slate-400">
+              <tr><td colSpan="5" className="text-center py-10 text-slate-400">
                 <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-600" /><span>Memuat data tindakan medis...</span>
               </td></tr>
             ) : displayed.length === 0 ? (
-              <tr><td colSpan="4" className="text-center py-10 text-slate-400">
+              <tr><td colSpan="5" className="text-center py-10 text-slate-400">
                 <Stethoscope className="w-8 h-8 mx-auto mb-2 text-slate-300" />
                 <p className="font-medium text-slate-600 text-sm">Data tindakan medis belum tersedia</p>
                 <p className="text-xs text-slate-400 mt-0.5">Coba ubah kata kunci atau tambah tindakan baru.</p>
@@ -47,6 +48,17 @@ export default function ProcedureTable({
                   <td className="p-3.5 pl-6 font-mono text-slate-500">{indexOfFirst + idx + 1}</td>
                   <td className="p-3.5 font-mono font-bold text-blue-800">{item.code}</td>
                   <td className="p-3.5 font-bold text-slate-900">{item.name}</td>
+                  <td className="p-3.5">
+                    {item.polyclinic_name ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                        <Building2 className="w-3 h-3" />{item.polyclinic_name}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600">
+                        Semua Poli (Global)
+                      </span>
+                    )}
+                  </td>
                   {(canEdit || canDelete) && (
                     <td className="p-3.5 text-right pr-6 space-x-2 whitespace-nowrap">
                       {canEdit && (

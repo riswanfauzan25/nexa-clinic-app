@@ -8,6 +8,7 @@ erDiagram
     users ||--o{ registrations : "conducts_as_doctor"
     patients ||--o{ registrations : "registers"
     polyclinics ||--o{ registrations : "located_at"
+    polyclinics ||--o{ procedures : "owns_procedures"
     
     registrations ||--|| queues : "generates"
     registrations ||--o| medical_records : "results_in"
@@ -55,6 +56,7 @@ erDiagram
         int id PK
         string code UK
         string name
+        int polyclinic_id FK
     }
 
     registrations {

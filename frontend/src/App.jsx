@@ -13,6 +13,8 @@ import RegistrationsPage from './pages/registrations/RegistrationsPage';
 import QueuesPage from './pages/queues/QueuesPage';
 import QueueDisplayPage from './pages/queues/QueueDisplayPage';
 
+import MedicalRecordsPage from './pages/medical-records/MedicalRecordsPage';
+
 function MainApp() {
   const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -50,12 +52,7 @@ function MainApp() {
       case 'queues':
         return <QueuesPage />;
       case 'medical-records':
-        return (
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-800 mb-2">Pemeriksaan Dokter (SOAP)</h2>
-            <p className="text-slate-500 text-sm">Modul Input Rekam Medis SOAP & Resep Obat akan dirender di sini...</p>
-          </div>
-        );
+        return <MedicalRecordsPage />;
       default:
         return <DashboardPage setActiveTab={setActiveTab} />;
     }
@@ -89,18 +86,24 @@ function MainApp() {
   );
 }
 
+import ErrorBoundary from './components/ErrorBoundary';
+
 export default function App() {
   if (window.location.pathname === '/queue-display') {
     return (
-      <AuthProvider>
-        <QueueDisplayPage />
-      </AuthProvider>
+      <ErrorBoundary>
+        <AuthProvider>
+          <QueueDisplayPage />
+        </AuthProvider>
+      </ErrorBoundary>
     );
   }
 
   return (
-    <AuthProvider>
-      <MainApp />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <MainApp />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }

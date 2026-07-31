@@ -66,6 +66,7 @@ Modul Antarmuka Pengguna (Frontend Web Application) untuk **Nexa Clinic System**
 
 - **Modul Pendaftaran Pasien (`registrations`)**: Form pendaftaran ke Poli & Dokter Jaga, jenis pembayaran, auto-generate no kunjungan, validasi cegah pendaftaran ganda aktif, Modal Detail Pendaftaran, cetak tiket antrean, & Export PDF.
 - **Modul Kelola & Panggil Antrean (`queues`)**: Kontrol status antrean real-time (`Menunggu` ➔ `Dipanggil` ➔ `Melayani` ➔ `Selesai` / `Lewat`), audio panggil suara mengeja lengkap (`A 0 0 1`), tombol panggil lagi antrean dilewati, Modal Lewati Kustom, & Array safety guard (tidak pernah blank screen).
+- **Modul Pemeriksaan Dokter (`medical-records`)**: Input rekam medis SOAP (Subjective, Objective/Vital Signs, Assessment/Diagnosa, Plan/Terapi), Input Tindakan Medis (filter poli + ketik manual auto-save), Input Resep Obat (seluruh katalog), & Modal Riwayat Pemeriksaan Pasien.
 - **Display TV Monitor Ruang Tunggu (`/queue-display`)**: Tampilan Layar TV Monitor antrean publik real-time bertema terang (*Light Mode*) yang simpel dan jelas.
 
 ---
@@ -90,6 +91,7 @@ src/
 │   ├── medicines/              # MedicinesPage + (MedicineTable, FormModal, DeleteModal)
 │   ├── registrations/          # RegistrationsPage + (RegistrationTable, FormModal, DetailModal, TicketModal, DeleteModal)
 │   ├── queues/                 # QueuesPage, QueueDisplayPage + (QueueTable, QueueSkipModal)
+│   ├── medical-records/        # MedicalRecordsPage + (MedicalRecordFormModal, MedicalRecordDetailModal, PatientHistoryModal)
 │   └── users/                  # UserManagementPage + (UserTable, UserFormModal, UserDeleteModal)
 └── App.jsx                     # Entrypoint & React Router
 ```

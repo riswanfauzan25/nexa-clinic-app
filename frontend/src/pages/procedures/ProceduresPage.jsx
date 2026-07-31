@@ -15,6 +15,7 @@ export default function ProceduresPage() {
   const canDelete = hasPermission('procedures', 'delete');
 
   const [procedures, setProcedures] = useState([]);
+  const [polyclinics, setPolyclinics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,7 +24,7 @@ export default function ProceduresPage() {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
-  const [formData, setFormData] = useState({ code: '', name: '' });
+  const [formData, setFormData] = useState({ code: '', name: '', polyclinic_id: '' });
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -39,7 +40,17 @@ export default function ProceduresPage() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchProcedures(); }, [search]);
+  const fetchPolyclinics = async () => {
+    try {
+      const response = await api.get('/polyclinics');
+      if (response.success) { setPolyclinics(response.data || []); }
+    } catch (error) { console.error('Error fetching polyclinics:', error); }
+  };
+
+  useEffect(() => { 
+    fetchProcedures(); 
+    fetchPolyclinics();
+  }, [search]);
 
   useEffect(() => {
     if (globalSuccessAlert) {
@@ -54,13 +65,13 @@ export default function ProceduresPage() {
 
   const handleOpenCreate = () => {
     setIsEditing(false); setSelectedId(null);
-    setFormData({ code: `TDK-00${procedures.length + 1}`, name: '' });
+    setFormData({ code: `TDK-00${procedures.length + 1}`, name: '', polyclinic_id: '' });
     setFormError(''); setShowModal(true);
   };
 
   const handleOpenEdit = (item) => {
     setIsEditing(true); setSelectedId(item.id);
-    setFormData({ code: item.code, name: item.name });
+    setFormData({ code: item.code, name: item.name, polyclinic_id: item.polyclinic_id || '' });
     setFormError(''); setShowModal(true);
   };
 
@@ -132,7 +143,7 @@ export default function ProceduresPage() {
 
       <ProcedureFormModal
         show={showModal} isEditing={isEditing} formData={formData} setFormData={setFormData}
-        formError={formError} submitting={submitting} onSubmit={handleSubmit} onClose={() => setShowModal(false)}
+        polyclinics={polyclinics} formError={formError} submitting={submitting} onSubmit={handleSubmit} onClose={() => setShowModal(false)}
       />
 
       <ProcedureDeleteModal

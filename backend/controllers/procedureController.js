@@ -3,16 +3,37 @@ const { successResponse, errorResponse } = require('../utils/response');
 
 const getProcedures = async (req, res) => {
   try {
-    const { search = '' } = req.query;
-    let query = 'SELECT * FROM procedures';
+    const { search = '', polyclinic_id = '' } = req.query;
+    let whereClauses = [];
     let params = [];
 
     if (search) {
-      query += ' WHERE code LIKE ? OR name LIKE ?';
+      whereClauses.push('(p.code LIKE ? OR p.name LIKE ?)');
       params.push(`%${search}%`, `%${search}%`);
     }
 
-    query += ' ORDER BY id DESC';
+    if (polyclinic_id) {
+      whereClauses.push('(p.polyclinic_id = ? OR p.polyclinic_id IS NULL)');
+      params.push(polyclinic_id);
+    }
+
+    const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+    const query = `
+      SELECT 
+        p.id,
+        p.code,
+        p.name,
+        p.polyclinic_id,
+        poly.name AS polyclinic_name,
+        p.created_at,
+        p.updated_at
+      FROM procedures p
+      LEFT JOIN polyclinics poly ON p.polyclinic_id = poly.id
+      ${whereSql}
+      ORDER BY p.id DESC
+    `;
+
     const [rows] = await db.query(query, params);
     return successResponse(res, rows, 'Data tindakan medis berhasil diambil.');
   } catch (error) {
@@ -22,7 +43,7 @@ const getProcedures = async (req, res) => {
 
 const createProcedure = async (req, res) => {
   try {
-    const { code, name } = req.body;
+    const { code, name, polyclinic_id } = req.body;
     if (!code || !name) {
       return errorResponse(res, 'Kode dan Nama Tindakan Medis wajib diisi.', null, 400);
     }
@@ -32,12 +53,14 @@ const createProcedure = async (req, res) => {
       return errorResponse(res, 'Kode Tindakan Medis sudah terdaftar.', null, 400);
     }
 
+    const polyId = polyclinic_id ? Number(polyclinic_id) : null;
+
     const [result] = await db.query(
-      'INSERT INTO procedures (code, name) VALUES (?, ?)',
-      [code, name]
+      'INSERT INTO procedures (code, name, polyclinic_id) VALUES (?, ?, ?)',
+      [code, name, polyId]
     );
 
-    return successResponse(res, { id: result.insertId, code, name }, 'Tindakan medis baru berhasil ditambahkan.', 201);
+    return successResponse(res, { id: result.insertId, code, name, polyclinic_id: polyId }, 'Tindakan medis baru berhasil ditambahkan.', 201);
   } catch (error) {
     return errorResponse(res, 'Gagal menambahkan tindakan medis.', error.message, 500);
   }
@@ -46,7 +69,7 @@ const createProcedure = async (req, res) => {
 const updateProcedure = async (req, res) => {
   try {
     const { id } = req.params;
-    const { code, name } = req.body;
+    const { code, name, polyclinic_id } = req.body;
 
     if (!code || !name) {
       return errorResponse(res, 'Kode dan Nama Tindakan Medis wajib diisi.', null, 400);
@@ -57,12 +80,14 @@ const updateProcedure = async (req, res) => {
       return errorResponse(res, 'Kode Tindakan Medis sudah digunakan.', null, 400);
     }
 
+    const polyId = polyclinic_id ? Number(polyclinic_id) : null;
+
     await db.query(
-      'UPDATE procedures SET code = ?, name = ? WHERE id = ?',
-      [code, name, id]
+      'UPDATE procedures SET code = ?, name = ?, polyclinic_id = ? WHERE id = ?',
+      [code, name, polyId, id]
     );
 
-    return successResponse(res, { id: Number(id), code, name }, 'Data tindakan medis berhasil diperbarui.');
+    return successResponse(res, { id: Number(id), code, name, polyclinic_id: polyId }, 'Data tindakan medis berhasil diperbarui.');
   } catch (error) {
     return errorResponse(res, 'Gagal memperbarui tindakan medis.', error.message, 500);
   }

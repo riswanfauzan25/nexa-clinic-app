@@ -1,6 +1,6 @@
 import { Stethoscope, X, AlertCircle } from 'lucide-react';
 
-export default function ProcedureFormModal({ show, isEditing, formData, setFormData, formError, submitting, onSubmit, onClose }) {
+export default function ProcedureFormModal({ show, isEditing, formData, setFormData, polyclinics = [], formError, submitting, onSubmit, onClose }) {
   if (!show) return null;
 
   return (
@@ -51,6 +51,25 @@ export default function ProcedureFormModal({ show, isEditing, formData, setFormD
               placeholder="Contoh: Konsultasi & Pemeriksaan Umum"
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 outline-none focus:border-blue-700"
             />
+          </div>
+
+          <div>
+            <label className="block font-semibold text-slate-700 mb-1">
+              Berlaku untuk Poliklinik
+            </label>
+            <select
+              value={formData.polyclinic_id || ''}
+              onChange={(e) => setFormData({ ...formData, polyclinic_id: e.target.value })}
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 outline-none focus:border-blue-700"
+            >
+              <option value="">-- Semua Poliklinik (Global) --</option>
+              {polyclinics.map((poly) => (
+                <option key={poly.id} value={poly.id}>
+                  {poly.name}
+                </option>
+              ))}
+            </select>
+            <p className="text-[11px] text-slate-400 mt-1">Pilih poli spesifik atau biarkan "Semua Poliklinik" agar muncul di seluruh poli.</p>
           </div>
 
           <div className="flex gap-3 pt-3 border-t border-slate-100">

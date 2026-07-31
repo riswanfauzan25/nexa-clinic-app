@@ -786,6 +786,83 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "🩺 Medical Records - Rekam Medis SOAP",
+      "item": [
+        {
+          "name": "Get Patients Ready for Exam",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/medical-records/ready",
+              "host": ["{{base_url}}"],
+              "path": ["api", "medical-records", "ready"]
+            },
+            "description": "Mengambil daftar pasien yang siap diperiksa hari ini (status Dipanggil / Melayani)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Medical Records List",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/medical-records?search=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "medical-records"],
+              "query": [
+                { "key": "search", "value": "", "description": "Pencarian nama / No. RM" }
+              ]
+            },
+            "description": "Mengambil seluruh daftar rekam medis (Role-Aware filter per dokter)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Medical Record Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/medical-records/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "medical-records", "1"]
+            },
+            "description": "Mengambil rincian detail rekam medis SOAP beserta rincian tindakan dan resep obat."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Medical Record (SOAP + Tindakan + Resep)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"registration_id\": 1,\n    \"patient_id\": 1,\n    \"subjective\": \"Pasien mengeluh demam dan pusing sejak 2 hari yang lalu.\",\n    \"blood_pressure\": \"120/80\",\n    \"body_temperature\": 37.5,\n    \"weight\": 65,\n    \"height\": 170,\n    \"assessment\": \"Febris ec Infeksi Saluran Pernapasan Akut\",\n    \"plan\": \"Istirahat cukup, minum air hangat, kontrol 3 hari jika belum membaik.\",\n    \"procedures\": [\n        { \"procedure_id\": 1, \"notes\": \"Konsultasi & pemeriksaan fisik awal\" }\n    ],\n    \"prescriptions\": [\n        { \"medicine_id\": 1, \"dosage\": \"3 x 1 Tablet\", \"instructions\": \"Sesudah makan\" }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/medical-records",
+              "host": ["{{base_url}}"],
+              "path": ["api", "medical-records"]
+            },
+            "description": "Membuat rekam medis baru (SOAP, Tindakan, Resep) dan mengupdate status antrean ke Selesai."
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
