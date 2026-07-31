@@ -7,32 +7,39 @@ const { successResponse, errorResponse } = require('../utils/response');
  */
 const getDashboardSummary = async (req, res) => {
   try {
+    const isDoctor = req.user && req.user.role === 'Dokter';
+    const doctorId = req.user ? req.user.id : null;
+
     // 1. Total Pasien Terdaftar
     const [patientRows] = await db.query('SELECT COUNT(*) as totalPatients FROM patients');
     const totalPatients = patientRows[0].totalPatients;
 
     // 2. Total Pasien Hari Ini (Kunjungan Hari Ini)
-    const [todayRegRows] = await db.query(
-      'SELECT COUNT(*) as todayPatients FROM registrations WHERE visit_date = CURDATE()'
-    );
+    const todayQuery = isDoctor 
+      ? 'SELECT COUNT(*) as todayPatients FROM registrations WHERE visit_date = CURDATE() AND doctor_id = ?'
+      : 'SELECT COUNT(*) as todayPatients FROM registrations WHERE visit_date = CURDATE()';
+    const [todayRegRows] = await db.query(todayQuery, isDoctor ? [doctorId] : []);
     const todayPatients = todayRegRows[0].todayPatients;
 
     // 3. Total Antrean Hari Ini
-    const [todayQueueRows] = await db.query(
-      'SELECT COUNT(*) as todayQueues FROM queues WHERE DATE(created_at) = CURDATE()'
-    );
+    const queueQuery = isDoctor
+      ? 'SELECT COUNT(*) as todayQueues FROM queues q JOIN registrations r ON q.registration_id = r.id WHERE DATE(q.created_at) = CURDATE() AND r.doctor_id = ?'
+      : 'SELECT COUNT(*) as todayQueues FROM queues WHERE DATE(created_at) = CURDATE()';
+    const [todayQueueRows] = await db.query(queueQuery, isDoctor ? [doctorId] : []);
     const todayQueues = todayQueueRows[0].todayQueues;
 
     // 4. Total Pasien Menunggu (Hari Ini)
-    const [waitingRows] = await db.query(
-      "SELECT COUNT(*) as waitingPatients FROM registrations WHERE status = 'Menunggu' AND visit_date = CURDATE()"
-    );
+    const waitingQuery = isDoctor
+      ? "SELECT COUNT(*) as waitingPatients FROM registrations WHERE status = 'Menunggu' AND visit_date = CURDATE() AND doctor_id = ?"
+      : "SELECT COUNT(*) as waitingPatients FROM registrations WHERE status = 'Menunggu' AND visit_date = CURDATE()";
+    const [waitingRows] = await db.query(waitingQuery, isDoctor ? [doctorId] : []);
     const waitingPatients = waitingRows[0].waitingPatients;
 
     // 5. Total Pasien Selesai Dilayani (Hari Ini)
-    const [completedRows] = await db.query(
-      "SELECT COUNT(*) as completedPatients FROM registrations WHERE status = 'Selesai' AND visit_date = CURDATE()"
-    );
+    const completedQuery = isDoctor
+      ? "SELECT COUNT(*) as completedPatients FROM registrations WHERE status = 'Selesai' AND visit_date = CURDATE() AND doctor_id = ?"
+      : "SELECT COUNT(*) as completedPatients FROM registrations WHERE status = 'Selesai' AND visit_date = CURDATE()";
+    const [completedRows] = await db.query(completedQuery, isDoctor ? [doctorId] : []);
     const completedPatients = completedRows[0].completedPatients;
 
     // 6. Data Dokter Terdaftar (Dinamis dari Tabel Users)

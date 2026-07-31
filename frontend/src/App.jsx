@@ -10,6 +10,8 @@ import PolyclinicsPage from './pages/polyclinics/PolyclinicsPage';
 import ProceduresPage from './pages/procedures/ProceduresPage';
 import MedicinesPage from './pages/medicines/MedicinesPage';
 import RegistrationsPage from './pages/registrations/RegistrationsPage';
+import QueuesPage from './pages/queues/QueuesPage';
+import QueueDisplayPage from './pages/queues/QueueDisplayPage';
 
 function MainApp() {
   const { user, loading } = useAuth();
@@ -46,12 +48,7 @@ function MainApp() {
       case 'registrations':
         return <RegistrationsPage />;
       case 'queues':
-        return (
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-800 mb-2">Kelola Antrean</h2>
-            <p className="text-slate-500 text-sm">Modul Pemanggilan & Status Antrean akan dirender di sini...</p>
-          </div>
-        );
+        return <QueuesPage />;
       case 'medical-records':
         return (
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
@@ -93,6 +90,14 @@ function MainApp() {
 }
 
 export default function App() {
+  if (window.location.pathname === '/queue-display') {
+    return (
+      <AuthProvider>
+        <QueueDisplayPage />
+      </AuthProvider>
+    );
+  }
+
   return (
     <AuthProvider>
       <MainApp />

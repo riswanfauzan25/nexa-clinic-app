@@ -8,6 +8,7 @@ import RegistrationTicketModal from './components/RegistrationTicketModal';
 import RegistrationDeleteModal from './components/RegistrationDeleteModal';
 import RegistrationCancelModal from './components/RegistrationCancelModal';
 import ExportWarningModal from './components/ExportWarningModal';
+import RegistrationDetailModal from './components/RegistrationDetailModal';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -26,6 +27,7 @@ export default function RegistrationsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
+  const [polyclinicFilter, setPolyclinicFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [globalSuccessAlert, setGlobalSuccessAlert] = useState('');
 
@@ -52,13 +54,17 @@ export default function RegistrationsPage() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [itemToCancel, setItemToCancel] = useState(null);
 
+  // Modal Detail Kunjungan Pasien
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedRegistration, setSelectedRegistration] = useState(null);
+
   // Modal Peringatan Export Kosong
   const [showExportWarning, setShowExportWarning] = useState(false);
 
   const fetchRegistrations = async () => {
     setLoading(true);
     try {
-      const response = await api.get(`/registrations?search=${encodeURIComponent(search)}&status=${statusFilter}&date=${dateFilter}`);
+      const response = await api.get(`/registrations?search=${encodeURIComponent(search)}&status=${statusFilter}&date=${dateFilter}&polyclinic_id=${polyclinicFilter}`);
       if (response.success) {
         const dataList = Array.isArray(response.data) ? response.data : (response.data?.registrations || []);
         setRegistrations(dataList);
@@ -93,7 +99,7 @@ export default function RegistrationsPage() {
 
   useEffect(() => {
     fetchRegistrations();
-  }, [search, statusFilter, dateFilter]);
+  }, [search, statusFilter, dateFilter, polyclinicFilter]);
 
   useEffect(() => {
     fetchMasterData();
@@ -120,6 +126,11 @@ export default function RegistrationsPage() {
   const handleOpenTicketModal = (item) => {
     setSelectedTicket(item);
     setShowTicketModal(true);
+  };
+
+  const handleOpenDetailModal = (item) => {
+    setSelectedRegistration(item);
+    setShowDetailModal(true);
   };
 
   const handleSubmitForm = async (e) => {
@@ -322,6 +333,9 @@ export default function RegistrationsPage() {
         setStatusFilter={setStatusFilter}
         dateFilter={dateFilter}
         setDateFilter={setDateFilter}
+        polyclinicFilter={polyclinicFilter}
+        setPolyclinicFilter={setPolyclinicFilter}
+        polyclinics={polyclinics}
         totalCount={registrations.length}
         currentPage={currentPage}
         totalPages={totalPages}
@@ -331,6 +345,7 @@ export default function RegistrationsPage() {
         canDelete={canDelete}
         onRefresh={fetchRegistrations}
         onOpenTicket={handleOpenTicketModal}
+        onOpenDetail={handleOpenDetailModal}
         onUpdateStatus={handleOpenCancelModal}
         onDelete={handleOpenDeleteModal}
         onExportPDF={handleExportPDF}
@@ -378,6 +393,13 @@ export default function RegistrationsPage() {
         show={showExportWarning}
         message="Tidak ada data pendaftaran pada filter ini yang dapat diexport ke file PDF."
         onClose={() => setShowExportWarning(false)}
+      />
+
+      {/* Modal Detail Pendaftaran Pasien */}
+      <RegistrationDetailModal
+        show={showDetailModal}
+        registration={selectedRegistration}
+        onClose={() => { setShowDetailModal(false); setSelectedRegistration(null); }}
       />
     </div>
   );

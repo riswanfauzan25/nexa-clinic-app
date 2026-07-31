@@ -10,6 +10,7 @@ const getRegistrations = async (req, res) => {
     const search = req.query.search || '';
     const status = req.query.status || '';
     const date = req.query.date || '';
+    const polyclinic_id = req.query.polyclinic_id || '';
 
     let whereClauses = [];
     let queryParams = [];
@@ -28,6 +29,17 @@ const getRegistrations = async (req, res) => {
     if (date) {
       whereClauses.push('r.visit_date = ?');
       queryParams.push(date);
+    }
+
+    if (polyclinic_id) {
+      whereClauses.push('r.polyclinic_id = ?');
+      queryParams.push(polyclinic_id);
+    }
+
+    // Proteksi Otomatis: Jika user adalah Dokter, HANYA tampilkan pendaftaran milik dokter tersebut
+    if (req.user && req.user.role === 'Dokter') {
+      whereClauses.push('r.doctor_id = ?');
+      queryParams.push(req.user.id);
     }
 
     const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';

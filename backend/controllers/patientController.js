@@ -39,23 +39,33 @@ const getPatients = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    let queryWhere = '';
+    const isDoctor = req.user && req.user.role === 'Dokter';
+    const doctorId = req.user ? req.user.id : null;
+
+    let whereClauses = [];
     let queryParams = [];
 
     if (search) {
-      queryWhere = 'WHERE name LIKE ? OR nik LIKE ? OR medical_record_number LIKE ?';
+      whereClauses.push('(p.name LIKE ? OR p.nik LIKE ? OR p.medical_record_number LIKE ?)');
       const searchPattern = `%${search}%`;
-      queryParams = [searchPattern, searchPattern, searchPattern];
+      queryParams.push(searchPattern, searchPattern, searchPattern);
     }
 
-    const countSql = `SELECT COUNT(*) as total FROM patients ${queryWhere}`;
+    if (isDoctor) {
+      whereClauses.push('EXISTS (SELECT 1 FROM registrations r WHERE r.patient_id = p.id AND r.doctor_id = ?)');
+      queryParams.push(doctorId);
+    }
+
+    const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+    const countSql = `SELECT COUNT(DISTINCT p.id) as total FROM patients p ${whereSql}`;
     const [countRows] = await db.query(countSql, queryParams);
     const totalRecords = countRows[0].total;
 
     const dataSql = `
-      SELECT * FROM patients 
-      ${queryWhere} 
-      ORDER BY id DESC 
+      SELECT DISTINCT p.* FROM patients p 
+      ${whereSql} 
+      ORDER BY p.id DESC 
       LIMIT ? OFFSET ?
     `;
     const [patients] = await db.query(dataSql, [...queryParams, limit, offset]);

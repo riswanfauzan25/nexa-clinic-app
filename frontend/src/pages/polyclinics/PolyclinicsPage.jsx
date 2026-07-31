@@ -9,8 +9,10 @@ import PolyclinicDeleteModal from './components/PolyclinicDeleteModal';
 const ITEMS_PER_PAGE = 10;
 
 export default function PolyclinicsPage() {
-  const { user } = useAuth();
-  const isAdmin = user?.role === 'Administrator';
+  const { user, hasPermission } = useAuth();
+  const canCreate = hasPermission('polyclinics', 'create');
+  const canEdit = hasPermission('polyclinics', 'edit');
+  const canDelete = hasPermission('polyclinics', 'delete');
 
   const [polyclinics, setPolyclinics] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -112,9 +114,9 @@ export default function PolyclinicsPage() {
           <h1 className="text-xl font-bold text-slate-900">Kelola Master Poliklinik</h1>
           <p className="text-slate-500 text-xs mt-1">Kelola daftar spesialisasi poliklinik aktif untuk pendaftaran pelayanan medis.</p>
         </div>
-        {isAdmin && (
+        {canCreate && (
           <button onClick={handleOpenCreate} className="px-4 py-2.5 bg-blue-800 hover:bg-blue-900 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors flex items-center gap-2 cursor-pointer shrink-0">
-            <Plus className="w-4 h-4" /><span>Tambah Poli Baru</span>
+            <Plus className="w-4 h-4" /><span>Tambah Poliklinik Baru</span>
           </button>
         )}
       </div>
@@ -122,7 +124,8 @@ export default function PolyclinicsPage() {
       <PolyclinicTable
         displayed={displayed} loading={loading} search={search} setSearch={setSearch}
         totalCount={polyclinics.length} currentPage={currentPage} totalPages={totalPages}
-        setCurrentPage={setCurrentPage} indexOfFirst={indexOfFirst} isAdmin={isAdmin}
+        setCurrentPage={setCurrentPage} indexOfFirst={indexOfFirst} canEdit={canEdit}
+        canDelete={canDelete}
         onRefresh={fetchPolyclinics} onEdit={handleOpenEdit} onDelete={handleOpenDelete}
       />
 

@@ -3,7 +3,7 @@ import { Pill, Search, Edit3, Trash2, RefreshCw, ChevronLeft, ChevronRight } fro
 export default function MedicineTable({
   displayed, loading, search, setSearch, totalCount,
   currentPage, totalPages, setCurrentPage, indexOfFirst,
-  isAdmin, onRefresh, onEdit, onDelete
+  canEdit, canDelete, onRefresh, onEdit, onDelete
 }) {
   return (
     <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
@@ -37,7 +37,7 @@ export default function MedicineTable({
               <th className="p-3.5">Kode Obat</th>
               <th className="p-3.5">Nama & Dosis Obat</th>
               <th className="p-3.5">Satuan Kemasan</th>
-              {isAdmin && <th className="p-3.5 text-right pr-6">Aksi</th>}
+              {(canEdit || canDelete) && <th className="p-3.5 text-right pr-6">Aksi</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -58,17 +58,19 @@ export default function MedicineTable({
                   <td className="p-3.5 pl-6 font-mono text-slate-500">{indexOfFirst + idx + 1}</td>
                   <td className="p-3.5 font-mono font-bold text-blue-800">{item.code}</td>
                   <td className="p-3.5 font-bold text-slate-900">{item.name}</td>
-                  <td className="p-3.5">
-                    <span className="px-2 py-0.5 bg-slate-100 border border-slate-300 rounded text-[11px] font-semibold text-slate-600">{item.unit}</span>
-                  </td>
-                  {isAdmin && (
+                  <td className="p-3.5 font-medium text-slate-700">{item.unit || 'Tablet'}</td>
+                  {(canEdit || canDelete) && (
                     <td className="p-3.5 text-right pr-6 space-x-2 whitespace-nowrap">
-                      <button onClick={() => onEdit(item)} className="px-2.5 py-1 bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-800 border border-slate-300 rounded-md font-medium transition-colors cursor-pointer">
-                        <Edit3 className="w-3.5 h-3.5 inline mr-1" />Edit
-                      </button>
-                      <button onClick={() => onDelete(item)} className="px-2.5 py-1 bg-slate-100 hover:bg-red-100 text-slate-700 hover:text-red-700 border border-slate-300 rounded-md font-medium transition-colors cursor-pointer">
-                        <Trash2 className="w-3.5 h-3.5 inline mr-1" />Hapus
-                      </button>
+                      {canEdit && (
+                        <button onClick={() => onEdit(item)} className="px-2.5 py-1 bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-800 border border-slate-300 rounded-md font-medium transition-colors cursor-pointer">
+                          <Edit3 className="w-3.5 h-3.5 inline mr-1" />Edit
+                        </button>
+                      )}
+                      {canDelete && (
+                        <button onClick={() => onDelete(item)} className="px-2.5 py-1 bg-slate-100 hover:bg-red-100 text-slate-700 hover:text-red-700 border border-slate-300 rounded-md font-medium transition-colors cursor-pointer">
+                          <Trash2 className="w-3.5 h-3.5 inline mr-1" />Hapus
+                        </button>
+                      )}
                     </td>
                   )}
                 </tr>

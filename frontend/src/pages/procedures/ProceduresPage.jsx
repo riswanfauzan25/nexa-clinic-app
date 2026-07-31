@@ -9,8 +9,10 @@ import ProcedureDeleteModal from './components/ProcedureDeleteModal';
 const ITEMS_PER_PAGE = 10;
 
 export default function ProceduresPage() {
-  const { user } = useAuth();
-  const isAdmin = user?.role === 'Administrator';
+  const { user, hasPermission } = useAuth();
+  const canCreate = hasPermission('procedures', 'create');
+  const canEdit = hasPermission('procedures', 'edit');
+  const canDelete = hasPermission('procedures', 'delete');
 
   const [procedures, setProcedures] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -113,7 +115,7 @@ export default function ProceduresPage() {
           <h1 className="text-xl font-bold text-slate-900">Kelola Master Tindakan Medis</h1>
           <p className="text-slate-500 text-xs mt-1">Kelola katalog jenis tindakan & pelayanan medis yang digunakan pada pemeriksaan Dokter (SOAP).</p>
         </div>
-        {isAdmin && (
+        {canCreate && (
           <button onClick={handleOpenCreate} className="px-4 py-2.5 bg-blue-800 hover:bg-blue-900 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors flex items-center gap-2 cursor-pointer shrink-0">
             <Plus className="w-4 h-4" /><span>Tambah Tindakan Baru</span>
           </button>
@@ -123,7 +125,8 @@ export default function ProceduresPage() {
       <ProcedureTable
         displayed={displayed} loading={loading} search={search} setSearch={setSearch}
         totalCount={procedures.length} currentPage={currentPage} totalPages={totalPages}
-        setCurrentPage={setCurrentPage} indexOfFirst={indexOfFirst} isAdmin={isAdmin}
+        setCurrentPage={setCurrentPage} indexOfFirst={indexOfFirst} canEdit={canEdit}
+        canDelete={canDelete}
         onRefresh={fetchProcedures} onEdit={handleOpenEdit} onDelete={handleOpenDelete}
       />
 

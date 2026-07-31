@@ -9,8 +9,10 @@ import MedicineDeleteModal from './components/MedicineDeleteModal';
 const ITEMS_PER_PAGE = 10;
 
 export default function MedicinesPage() {
-  const { user } = useAuth();
-  const isAdmin = user?.role === 'Administrator';
+  const { user, hasPermission } = useAuth();
+  const canCreate = hasPermission('medicines', 'create');
+  const canEdit = hasPermission('medicines', 'edit');
+  const canDelete = hasPermission('medicines', 'delete');
 
   const [medicines, setMedicines] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -124,9 +126,13 @@ export default function MedicinesPage() {
           <h1 className="text-xl font-bold text-slate-900">Kelola Master Obat-obatan</h1>
           <p className="text-slate-500 text-xs mt-1">Kelola katalog obat-obatan dan satuan stok yang digunakan untuk resep Dokter.</p>
         </div>
-        {isAdmin && (
-          <button onClick={handleOpenCreate} className="px-4 py-2.5 bg-blue-800 hover:bg-blue-900 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors flex items-center gap-2 cursor-pointer shrink-0">
-            <Plus className="w-4 h-4" /><span>Tambah Obat Baru</span>
+        {canCreate && (
+          <button
+            onClick={handleOpenCreate}
+            className="px-4 py-2.5 bg-blue-800 hover:bg-blue-900 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors flex items-center gap-2 cursor-pointer shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Tambah Obat Baru</span>
           </button>
         )}
       </div>
@@ -142,7 +148,8 @@ export default function MedicinesPage() {
         totalPages={totalPages}
         setCurrentPage={setCurrentPage}
         indexOfFirst={indexOfFirst}
-        isAdmin={isAdmin}
+        canEdit={canEdit}
+        canDelete={canDelete}
         onRefresh={fetchMedicines}
         onEdit={handleOpenEdit}
         onDelete={handleOpenDelete}

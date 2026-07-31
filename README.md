@@ -34,15 +34,17 @@ Aplikasi Sistem Informasi Klinik Pratama berbasis web terintegrasi untuk membant
    - Pengaturan checklist hak akses modular per aksi.
    - Pencarian real-time, pagination, modal form CRUD, & alert notifikasi sukses.
 
-4. **Katalog Master Data Lengkap (4 Modul Master)**:
+4. **Katalog Master Data & Arsitektur Controller Terpisah**:
+   - **Clean Modular Architecture**: Seluruh router dan controller terpisah 1-to-1 (`polyclinicController`, `procedureController`, `medicineController`, `queueController`, `patientController`, `userController`).
    - **Master Data Pasien**: Auto-generate Nomor Rekam Medis (`RM-YYYYMMDD-001`), validasi NIK 16 digit, Modal Detail Pasien + kalkulasi umur otomatis dari tanggal lahir.
    - **Master Data Poliklinik (`polyclinics`)**: Katalog layanan spesialisasi poli (Poli Umum, Poli Gigi, Poli Anak) yang terhubung ke loket pendaftaran.
    - **Master Data Tindakan Medis (`procedures`)**: Katalog kode tindakan medis (`TDK-001`) yang terhubung ke pemeriksaan Dokter (SOAP).
    - **Master Data Obat-obatan (`medicines`)**: Katalog kode obat (`OBT-001`) beserta satuan kemasan (Tablet, Kaplet, Botol, Salep) yang terhubung ke Resep Dokter.
 
 5. **Modul Transaksional Pelayanan Klinik (Proses Bisnis Terintegrasi)**:
-   - **Pendaftaran Kunjungan Pasien (`registrations`)**: Mendaftarkan pasien berobat, memilih poli & dokter jaga, auto-generate nomor kunjungan (`REG-YYYYMMDD-001`).
-   - **Kelola Antrean Real-Time (`queues`)**: Penerbitan nomor antrean otomatis (`A001`), pemanggilan antrean loket/ruang dokter (`Waiting` ➔ `Calling` ➔ `Serving` ➔ `Completed`).
+   - **Pendaftaran Kunjungan Pasien (`registrations`)**: Mendaftarkan pasien berobat, memilih poli & dokter jaga, jenis pembayaran (Umum, BPJS, Asuransi), auto-generate nomor kunjungan (`REG-YYYYMMDD-001`), cetak tiket antrean, validasi pendaftaran ganda aktif, Modal Detail Pendaftaran, dan Export Laporan PDF.
+   - **Kelola & Panggil Antrean Pasien (`queues`)**: Penerbitan nomor antrean per poli (`A001`, `B001`), pemanggilan audio suara antrean loket, kontrol status (`Menunggu` ➔ `Dipanggil` / `Check In` ➔ `Melayani` / `Pemeriksaan` ➔ `Selesai` / `Lewat`), filter status antrean aktif (menyembunyikan yang selesai secara default), panggil lagi antrean yang dilewati, serta Modal Konfirmasi Lewati Kustom.
+   - **Display TV Monitor Antrean (`/queue-display`)**: Tampilan Layar TV Monitor Ruang Tunggu real-time untuk memamerkan nomor antrean yang sedang dipanggil dan daftar antrean berikutnya.
    - **Pemeriksaan Dokter & SOAP (`medical_records`)**: Pencatatan data Subjektif, Objektif, Assessment, & Plan.
    - **Input Tindakan Medis (`patient_procedures`)**: Mencatat rincian tindakan medis yang dilakukan dokter kepada pasien.
    - **Input Resep Obat (`patient_prescriptions`)**: Mencatat rincian obat, dosis, dan aturan minum pasien.
@@ -66,24 +68,24 @@ File Postman Collection tersedia di root folder proyek: **`postman_collection.js
 3. Token JWT akan **otomatis tersimpan** ke variabel `{{token}}` (via Postman Test Script)
 4. Semua endpoint lain akan otomatis menggunakan token tersebut via `Authorization: Bearer {{token}}`
 
-### Daftar Endpoint API yang Tersedia:
-
 | Kelompok | Endpoint | Method | Auth |
 | :--- | :--- | :--- | :--- |
-| **Auth** | `/api/login` | POST | ❌ |
-| **Auth** | `/api/me` | GET | ✅ |
-| **Auth** | `/api/logout` | POST | ✅ |
-| **Dashboard** | `/api/dashboard/summary` | GET | ✅ |
-| **Patients** | `/api/patients` | GET, POST | ✅ |
-| **Patients** | `/api/patients/:id` | GET, PUT, DELETE | ✅ |
-| **Polyclinics** | `/api/polyclinics` | GET, POST | ✅ |
-| **Polyclinics** | `/api/polyclinics/:id` | GET, PUT, DELETE | ✅ |
-| **Procedures** | `/api/procedures` | GET, POST | ✅ |
-| **Procedures** | `/api/procedures/:id` | GET, PUT, DELETE | ✅ |
-| **Medicines** | `/api/medicines` | GET, POST | ✅ |
-| **Medicines** | `/api/medicines/:id` | GET, PUT, DELETE | ✅ |
-| **Users** | `/api/users` | GET, POST | ✅ Admin |
-| **Users** | `/api/users/:id` | PUT, DELETE | ✅ Admin |
+| **Auth** | `/api/login` | POST | ❌ Public |
+| **Auth** | `/api/me` | GET | ✅ Authenticated |
+| **Auth** | `/api/logout` | POST | ✅ Authenticated |
+| **Dashboard** | `/api/dashboard/summary` | GET | ✅ Authenticated |
+| **Users** | `/api/users` | GET, POST, PUT, DELETE | ✅ Admin Only |
+| **Doctors** | `/api/doctors` | GET | ✅ Authenticated |
+| **Patients** | `/api/patients` | GET, POST, PUT, DELETE | ✅ Authenticated |
+| **Polyclinics** | `/api/polyclinics` | GET, POST, PUT, DELETE | ✅ Authenticated |
+| **Procedures** | `/api/procedures` | GET, POST, PUT, DELETE | ✅ Authenticated |
+| **Medicines** | `/api/medicines` | GET, POST, PUT, DELETE | ✅ Authenticated |
+| **Registrations** | `/api/registrations` | GET, POST, DELETE | ✅ Authenticated |
+| **Registrations Status** | `/api/registrations/:id/status` | PUT | ✅ Authenticated |
+| **Queues** | `/api/queues` | GET | ✅ Authenticated |
+| **Queues Call** | `/api/queues/:id/call` | PUT | ✅ Authenticated |
+| **Queues Skip** | `/api/queues/:id/skip` | PUT | ✅ Authenticated |
+| **Queues Serve** | `/api/queues/:id/serve` | PUT | ✅ Authenticated |
 
 ---
 
@@ -262,6 +264,13 @@ nexa-clinic-app/
 │   │   │   │   └── PolyclinicsPage.jsx # CRUD Master Poliklinik
 │   │   │   ├── procedures/
 │   │   │   │   └── ProceduresPage.jsx # CRUD Master Tindakan Medis
+│   │   │   ├── registrations/
+│   │   │   │   ├── RegistrationsPage.jsx
+│   │   │   │   └── components/ (RegistrationTable, FormModal, DetailModal, TicketModal, DeleteModal, CancelModal)
+│   │   │   ├── queues/
+│   │   │   │   ├── QueuesPage.jsx      # Kelola & Panggil Antrean Loket
+│   │   │   │   ├── QueueDisplayPage.jsx # Display TV Monitor Ruang Tunggu
+│   │   │   │   └── components/ (QueueTable, QueueSkipModal)
 │   │   │   └── users/
 │   │   │       ├── UserManagementPage.jsx
 │   │   │       └── components/ (UserTable, UserFormModal, UserDeleteModal)

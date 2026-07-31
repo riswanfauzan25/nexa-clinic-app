@@ -12,6 +12,7 @@ const doctorRoutes = require('./routes/doctorRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const userRoutes = require('./routes/userRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
+const queueRoutes = require('./routes/queueRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -29,6 +30,7 @@ app.use('/api/doctors', doctorRoutes);               // /api/doctors (Daftar Dok
 app.use('/api/dashboard', dashboardRoutes);         // /api/dashboard/summary
 app.use('/api/users', userRoutes);                 // /api/users (CRUD User & RBAC - Admin Only)
 app.use('/api/registrations', registrationRoutes); // /api/registrations (Pendaftaran Kunjungan)
+app.use('/api/queues', queueRoutes);               // /api/queues (Kelola & Panggil Antrean)
 
 app.get('/', (req, res) => {
   res.json({
