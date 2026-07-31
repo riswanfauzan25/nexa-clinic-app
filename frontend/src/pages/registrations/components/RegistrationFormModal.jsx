@@ -70,7 +70,7 @@ export default function RegistrationFormModal({
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 outline-none focus:border-blue-700 bg-white"
             >
               <option value="">-- Pilih Pasien (No. RM / Nama) --</option>
-              {patients.map(p => (
+              {Array.isArray(patients) && patients.map(p => (
                 <option key={p.id} value={p.id}>
                   [{p.medical_record_number}] {p.name} (NIK: {p.nik})
                 </option>

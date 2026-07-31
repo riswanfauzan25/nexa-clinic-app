@@ -59,13 +59,16 @@ export default function RegistrationsPage() {
   const fetchMasterData = async () => {
     try {
       const resPatients = await api.get('/patients?limit=500').catch(() => ({ success: false }));
-      if (resPatients.success) setPatients(resPatients.data || []);
+      if (resPatients.success) {
+        const patientList = resPatients.data?.patients || resPatients.data || [];
+        setPatients(Array.isArray(patientList) ? patientList : []);
+      }
 
       const resPolys = await api.get('/polyclinics').catch(() => ({ success: false }));
-      if (resPolys.success) setPolyclinics(resPolys.data || []);
+      if (resPolys.success) setPolyclinics(Array.isArray(resPolys.data) ? resPolys.data : []);
 
       const resDocs = await api.get('/doctors').catch(() => ({ success: false }));
-      if (resDocs.success) setDoctors(resDocs.data || []);
+      if (resDocs.success) setDoctors(Array.isArray(resDocs.data) ? resDocs.data : []);
     } catch (e) {
       console.error('Error fetching master data for registration:', e);
     }
