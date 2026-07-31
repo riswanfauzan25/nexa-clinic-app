@@ -1,4 +1,4 @@
-import { X, AlertCircle, User, Lock, Shield, Sliders, ShieldCheck } from 'lucide-react';
+import { X, AlertCircle, User, Lock, Shield, Sliders, ShieldCheck, Building2 } from 'lucide-react';
 
 export default function UserFormModal({
   showModal,
@@ -11,7 +11,8 @@ export default function UserFormModal({
   isChecked,
   onSubmit,
   submitting,
-  formError
+  formError,
+  polyclinics = []
 }) {
   if (!showModal) return null;
 
@@ -104,6 +105,27 @@ export default function UserFormModal({
               </div>
             </div>
           </div>
+
+          {/* Dropdown Poliklinik - Muncul hanya jika role = Dokter */}
+          {formData.role === 'Dokter' && (
+            <div className="p-3 bg-cyan-50 border border-cyan-200 rounded-xl text-xs">
+              <label className="block font-bold text-cyan-800 mb-2 flex items-center gap-1.5">
+                <Building2 className="w-4 h-4" />
+                Poliklinik Tempat Bertugas <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={formData.polyclinic_id || ''}
+                onChange={(e) => setFormData({ ...formData, polyclinic_id: e.target.value || null })}
+                className="w-full border border-cyan-300 rounded-lg px-3 py-2 text-slate-800 outline-none focus:border-blue-700 bg-white"
+              >
+                <option value="">-- Pilih Poliklinik --</option>
+                {polyclinics.map(poli => (
+                  <option key={poli.id} value={poli.id}>{poli.name}</option>
+                ))}
+              </select>
+              <p className="text-cyan-600 mt-1.5">Dokter akan otomatis muncul sebagai pilihan saat mendaftarkan pasien ke poli ini.</p>
+            </div>
+          )}
 
           {/* Checklist Hak Akses Modul & Aksi */}
           <div className="pt-3 border-t border-slate-200">

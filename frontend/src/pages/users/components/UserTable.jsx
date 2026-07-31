@@ -116,6 +116,7 @@ export default function UserTable({
               <th className="p-3.5">Nama Pengguna</th>
               <th className="p-3.5">Username</th>
               <th className="p-3.5">Role System</th>
+              <th className="p-3.5">Poli Bertugas</th>
               <th className="p-3.5 max-w-xs">Hak Akses Modul Aktif</th>
               <th className="p-3.5 text-right pr-6">Aksi</th>
             </tr>
@@ -123,14 +124,14 @@ export default function UserTable({
           <tbody className="divide-y divide-slate-100">
             {loading ? (
               <tr>
-                <td colSpan="6" className="text-center py-10 text-slate-400">
+                <td colSpan="7" className="text-center py-10 text-slate-400">
                   <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-600" />
                   <span>Memuat data pengguna...</span>
                 </td>
               </tr>
             ) : displayedUsers.length === 0 ? (
               <tr>
-                <td colSpan="6" className="text-center py-10 text-slate-400">
+                <td colSpan="7" className="text-center py-10 text-slate-400">
                   <Users className="w-8 h-8 mx-auto mb-2 text-slate-300" />
                   <p className="font-medium text-slate-600 text-sm">Data pengguna tidak ditemukan</p>
                 </td>
@@ -144,6 +145,19 @@ export default function UserTable({
                     <td className="p-3.5 font-bold text-slate-900">{u.name}</td>
                     <td className="p-3.5 font-mono text-slate-600">@{u.username}</td>
                     <td className="p-3.5">{getRoleBadge(u.role)}</td>
+                    <td className="p-3.5">
+                      {u.role === 'Dokter' ? (
+                        u.polyclinic_name ? (
+                          <span className="px-2 py-0.5 bg-cyan-50 text-cyan-700 rounded font-semibold text-[11px] border border-cyan-200">
+                            {u.polyclinic_name}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 text-xs italic">-</span>
+                        )
+                      ) : (
+                        <span className="text-slate-400 text-xs italic">-</span>
+                      )}
+                    </td>
                     <td className="p-3.5 max-w-xs">
                       <div className="flex flex-wrap gap-1">
                         {u.role === 'Administrator' ? (
@@ -152,7 +166,7 @@ export default function UserTable({
                           </span>
                         ) : (
                           <>
-                            {perms.patients && perms.patients.length > 0 && (
+                             {perms.patients && perms.patients.length > 0 && (
                               <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] border border-blue-200">
                                 Pasien ({perms.patients.join(',')})
                               </span>

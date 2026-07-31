@@ -32,7 +32,8 @@ export default function DashboardPage({ setActiveTab }) {
     waitingPatients: 0,
     completedPatients: 0,
     doctors: [],
-    polyclinics: []
+    polyclinics: [],
+    roleUsers: []
   });
   const [loading, setLoading] = useState(true);
 
@@ -323,121 +324,112 @@ export default function DashboardPage({ setActiveTab }) {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                  <div className="flex items-center gap-2">
-                    <Stethoscope className="w-4 h-4 text-cyan-700" />
-                    <h3 className="font-bold text-slate-800 text-sm">Role Dokter</h3>
-                  </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 bg-cyan-100 text-cyan-800 rounded border border-cyan-200">
-                    Medis
-                  </span>
-                </div>
-                <ul className="space-y-2 text-xs">
-                  <li className="flex items-center gap-2 text-slate-700">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Lihat Daftar Antrean Pasien</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-slate-700">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Input Rekam Medis SOAP</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-slate-700">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Input Tindakan Medis & Resep</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-slate-700">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Lihat Riwayat Berobat Pasien</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-slate-400 line-through">
-                    <X className="w-4 h-4 text-rose-500 shrink-0" />
-                    <span>Tambah / Edit Master Pasien</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-slate-400 line-through">
-                    <X className="w-4 h-4 text-rose-500 shrink-0" />
-                    <span>Pendaftaran Kunjungan Baru</span>
-                  </li>
-                </ul>
-              </div>
+            {(() => {
+              // Helper membaca permission per role secara dinamis
+              const checkRolePerm = (roleName, moduleKey, actionKey = 'view') => {
+                const targetUser = summary.roleUsers?.find(u => u.role === roleName);
+                if (!targetUser) return false;
+                if (targetUser.role === 'Administrator') return true;
+                if (targetUser.permissions && typeof targetUser.permissions === 'object') {
+                  const m = targetUser.permissions[moduleKey];
+                  return Array.isArray(m) && m.includes(actionKey);
+                }
+                return false;
+              };
 
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                  <div className="flex items-center gap-2">
-                    <ClipboardList className="w-4 h-4 text-blue-700" />
-                    <h3 className="font-bold text-slate-800 text-sm">Role Pendaftaran</h3>
-                  </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-100 text-blue-800 rounded border border-blue-200">
-                    Front Office
-                  </span>
-                </div>
-                <ul className="space-y-2 text-xs">
-                  <li className="flex items-center gap-2 text-slate-700">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Tambah, Edit, & Kelola Pasien</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-slate-700">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Pendaftaran Pasien ke Poli</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-slate-700">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Generate Nomor Antrean (A001...)</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-slate-700">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Panggil Loket Antrean</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-slate-400 line-through">
-                    <X className="w-4 h-4 text-rose-500 shrink-0" />
-                    <span>Input Diagnosa SOAP Dokter</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-slate-400 line-through">
-                    <X className="w-4 h-4 text-rose-500 shrink-0" />
-                    <span>Input Resep Obat Pasien</span>
-                  </li>
-                </ul>
-              </div>
+              const dokterItems = [
+                { label: 'Lihat Daftar Antrean Pasien', allowed: checkRolePerm('Dokter', 'queues', 'view') },
+                { label: 'Input Rekam Medis SOAP', allowed: checkRolePerm('Dokter', 'medical-records', 'create') },
+                { label: 'Input Tindakan Medis & Resep', allowed: checkRolePerm('Dokter', 'medical-records', 'edit') },
+                { label: 'Lihat Riwayat Berobat Pasien', allowed: checkRolePerm('Dokter', 'patients', 'view') },
+                { label: 'Tambah / Edit Master Pasien', allowed: checkRolePerm('Dokter', 'patients', 'create') || checkRolePerm('Dokter', 'patients', 'edit') },
+                { label: 'Pendaftaran Kunjungan Baru', allowed: checkRolePerm('Dokter', 'registrations', 'create') }
+              ];
 
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-amber-700" />
-                    <h3 className="font-bold text-slate-800 text-sm">Role Administrator</h3>
+              const pendaftaranItems = [
+                { label: 'Tambah, Edit, & Kelola Pasien', allowed: checkRolePerm('Petugas Pendaftaran', 'patients', 'create') },
+                { label: 'Pendaftaran Pasien ke Poli', allowed: checkRolePerm('Petugas Pendaftaran', 'registrations', 'create') },
+                { label: 'Generate Nomor Antrean (A001...)', allowed: checkRolePerm('Petugas Pendaftaran', 'queues', 'view') },
+                { label: 'Panggil Loket Antrean', allowed: checkRolePerm('Petugas Pendaftaran', 'queues', 'call') },
+                { label: 'Input Diagnosa SOAP Dokter', allowed: checkRolePerm('Petugas Pendaftaran', 'medical-records', 'create') },
+                { label: 'Input Resep Obat Pasien', allowed: checkRolePerm('Petugas Pendaftaran', 'medical-records', 'edit') }
+              ];
+
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                  {/* Card Dokter */}
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                      <div className="flex items-center gap-2">
+                        <Stethoscope className="w-4 h-4 text-cyan-700" />
+                        <h3 className="font-bold text-slate-800 text-sm">Role Dokter</h3>
+                      </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 bg-cyan-100 text-cyan-800 rounded border border-cyan-200">
+                        Medis
+                      </span>
+                    </div>
+                    <ul className="space-y-2 text-xs">
+                      {dokterItems.map((item, i) => (
+                        <li key={i} className={`flex items-center gap-2 ${item.allowed ? 'text-slate-700 font-medium' : 'text-slate-400 line-through'}`}>
+                          {item.allowed ? (
+                            <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                          ) : (
+                            <X className="w-4 h-4 text-rose-500 shrink-0" />
+                          )}
+                          <span>{item.label}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 bg-amber-100 text-amber-800 rounded border border-amber-200">
-                    Full Access
-                  </span>
+
+                  {/* Card Pendaftaran */}
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                      <div className="flex items-center gap-2">
+                        <ClipboardList className="w-4 h-4 text-blue-700" />
+                        <h3 className="font-bold text-slate-800 text-sm">Role Pendaftaran</h3>
+                      </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-100 text-blue-800 rounded border border-blue-200">
+                        Front Office
+                      </span>
+                    </div>
+                    <ul className="space-y-2 text-xs">
+                      {pendaftaranItems.map((item, i) => (
+                        <li key={i} className={`flex items-center gap-2 ${item.allowed ? 'text-slate-700 font-medium' : 'text-slate-400 line-through'}`}>
+                          {item.allowed ? (
+                            <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                          ) : (
+                            <X className="w-4 h-4 text-rose-500 shrink-0" />
+                          )}
+                          <span>{item.label}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Card Admin */}
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4 text-amber-700" />
+                        <h3 className="font-bold text-slate-800 text-sm">Role Administrator</h3>
+                      </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 bg-amber-100 text-amber-800 rounded border border-amber-200">
+                        Full Access
+                      </span>
+                    </div>
+                    <ul className="space-y-2 text-xs">
+                      {['Full Access Master Data Pasien', 'Full Access Pendaftaran Kunjungan', 'Full Access Kelola & Panggil Antrean', 'Full Access Monitoring SOAP Dokter', 'Full Access Dashboard & Statistik', 'Otorisasi Hak Akses Sistem (RBAC)'].map((lbl, i) => (
+                        <li key={i} className="flex items-center gap-2 text-slate-700 font-medium">
+                          <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span>{lbl}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
-                <ul className="space-y-2 text-xs">
-                  <li className="flex items-center gap-2 text-slate-700">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Full Access Master Data Pasien</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-slate-700">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Full Access Pendaftaran Kunjungan</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-slate-700">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Full Access Kelola & Panggil Antrean</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-slate-700">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Full Access Monitoring SOAP Dokter</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-slate-700">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Full Access Dashboard & Statistik</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-slate-700">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Otorisasi Hak Akses Sistem (RBAC)</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+              );
+            })()}
           </div>
         </div>
       )}

@@ -19,7 +19,9 @@ const getUsers = async (req, res) => {
     }
 
     const [rows] = await db.query(
-      `SELECT id, name, username, role, permissions, created_at, updated_at FROM users ${queryWhere} ORDER BY id DESC`,
+      `SELECT u.id, u.name, u.username, u.role, u.permissions, u.polyclinic_id, p.name AS polyclinic_name, u.created_at, u.updated_at 
+       FROM users u LEFT JOIN polyclinics p ON u.polyclinic_id = p.id
+       ${queryWhere} ORDER BY u.id DESC`,
       queryParams
     );
 
@@ -79,7 +81,7 @@ const getUserById = async (req, res) => {
  */
 const createUser = async (req, res) => {
   try {
-    const { name, username, password, role, permissions } = req.body;
+    const { name, username, password, role, permissions, polyclinic_id } = req.body;
 
     if (!name || !username || !password || !role) {
       return errorResponse(res, 'Nama, username, password, dan role wajib diisi.', null, 400);
@@ -90,6 +92,11 @@ const createUser = async (req, res) => {
       return errorResponse(res, 'Role tidak valid. Pilih antara Administrator, Dokter, atau Petugas Pendaftaran.', null, 400);
     }
 
+    // Validasi: role Dokter wajib memilih poliklinik
+    if (role === 'Dokter' && !polyclinic_id) {
+      return errorResponse(res, 'Dokter wajib memilih poliklinik tempat bertugas.', null, 400);
+    }
+
     const [existing] = await db.query('SELECT id FROM users WHERE username = ?', [username]);
     if (existing.length > 0) {
       return errorResponse(res, 'Username sudah digunakan. Pilih username lain.', null, 400);
@@ -97,21 +104,21 @@ const createUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const permissionsJson = permissions ? JSON.stringify(permissions) : null;
+    const doctorPolyclinicId = role === 'Dokter' ? (polyclinic_id || null) : null;
 
     const [result] = await db.query(
-      'INSERT INTO users (name, username, password, role, permissions) VALUES (?, ?, ?, ?, ?)',
-      [name, username, hashedPassword, role, permissionsJson]
+      'INSERT INTO users (name, username, password, role, permissions, polyclinic_id) VALUES (?, ?, ?, ?, ?, ?)',
+      [name, username, hashedPassword, role, permissionsJson, doctorPolyclinicId]
     );
 
     const [newUser] = await db.query(
-      'SELECT id, name, username, role, permissions, created_at FROM users WHERE id = ?',
+      `SELECT u.id, u.name, u.username, u.role, u.permissions, u.polyclinic_id, p.name AS polyclinic_name, u.created_at 
+       FROM users u LEFT JOIN polyclinics p ON u.polyclinic_id = p.id WHERE u.id = ?`,
       [result.insertId]
     );
 
     if (newUser[0].permissions) {
-      try {
-        newUser[0].permissions = JSON.parse(newUser[0].permissions);
-      } catch (e) {}
+      try { newUser[0].permissions = JSON.parse(newUser[0].permissions); } catch (e) {}
     }
 
     return successResponse(res, newUser[0], 'Akun pengguna berhasil dibuat.', 201);
@@ -129,7 +136,7 @@ const createUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, username, password, role, permissions } = req.body;
+    const { name, username, password, role, permissions, polyclinic_id } = req.body;
 
     const [existing] = await db.query('SELECT * FROM users WHERE id = ?', [id]);
     if (existing.length === 0) {
@@ -152,21 +159,24 @@ const updateUser = async (req, res) => {
     const updatedName = name || existing[0].name;
     const updatedUsername = username || existing[0].username;
     const permissionsJson = permissions !== undefined ? JSON.stringify(permissions) : existing[0].permissions;
+    // polyclinic_id hanya berlaku untuk Dokter; reset ke null jika role berubah dari Dokter
+    const updatedPolyclinicId = updatedRole === 'Dokter'
+      ? (polyclinic_id !== undefined ? (polyclinic_id || null) : existing[0].polyclinic_id)
+      : null;
 
     await db.query(
-      'UPDATE users SET name = ?, username = ?, password = ?, role = ?, permissions = ? WHERE id = ?',
-      [updatedName, updatedUsername, passwordHash, updatedRole, permissionsJson, id]
+      'UPDATE users SET name = ?, username = ?, password = ?, role = ?, permissions = ?, polyclinic_id = ? WHERE id = ?',
+      [updatedName, updatedUsername, passwordHash, updatedRole, permissionsJson, updatedPolyclinicId, id]
     );
 
     const [updatedUser] = await db.query(
-      'SELECT id, name, username, role, permissions, created_at, updated_at FROM users WHERE id = ?',
+      `SELECT u.id, u.name, u.username, u.role, u.permissions, u.polyclinic_id, p.name AS polyclinic_name, u.created_at, u.updated_at 
+       FROM users u LEFT JOIN polyclinics p ON u.polyclinic_id = p.id WHERE u.id = ?`,
       [id]
     );
 
     if (updatedUser[0].permissions) {
-      try {
-        updatedUser[0].permissions = JSON.parse(updatedUser[0].permissions);
-      } catch (e) {}
+      try { updatedUser[0].permissions = JSON.parse(updatedUser[0].permissions); } catch (e) {}
     }
 
     return successResponse(res, updatedUser[0], 'Data pengguna berhasil diperbarui.');

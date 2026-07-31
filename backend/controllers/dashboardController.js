@@ -45,6 +45,18 @@ const getDashboardSummary = async (req, res) => {
       "SELECT id, name, description FROM polyclinics ORDER BY id ASC"
     );
 
+    // 8. Data Role & Permissions Terkini untuk Matriks RBAC
+    const [roleUsers] = await db.query(
+      "SELECT id, name, username, role, permissions FROM users"
+    );
+    const parsedRoleUsers = roleUsers.map(u => {
+      let p = u.permissions;
+      if (typeof p === 'string') {
+        try { p = JSON.parse(p); } catch (e) { p = null; }
+      }
+      return { ...u, permissions: p };
+    });
+
     return successResponse(res, {
       totalPatients,
       todayPatients,
@@ -52,7 +64,8 @@ const getDashboardSummary = async (req, res) => {
       waitingPatients,
       completedPatients,
       doctors,
-      polyclinics
+      polyclinics,
+      roleUsers: parsedRoleUsers
     }, 'Data ringkasan dashboard berhasil diambil.');
 
   } catch (error) {

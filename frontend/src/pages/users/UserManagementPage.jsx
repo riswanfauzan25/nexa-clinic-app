@@ -39,6 +39,7 @@ export default function UserManagementPage() {
   const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [polyclinics, setPolyclinics] = useState([]);
 
   // Alert Notifikasi Sukses Global Banner
   const [globalSuccessAlert, setGlobalSuccessAlert] = useState('');
@@ -56,7 +57,8 @@ export default function UserManagementPage() {
     username: '',
     password: '',
     role: 'Petugas Pendaftaran',
-    permissions: DEFAULT_ROLE_PERMISSIONS['Petugas Pendaftaran']
+    permissions: DEFAULT_ROLE_PERMISSIONS['Petugas Pendaftaran'],
+    polyclinic_id: null
   });
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -84,6 +86,17 @@ export default function UserManagementPage() {
     setCurrentPage(1);
   }, [search]);
 
+  // Fetch daftar poliklinik saat halaman pertama kali dimuat
+  useEffect(() => {
+    const fetchPolyclinics = async () => {
+      try {
+        const res = await api.get('/polyclinics');
+        if (res.success) setPolyclinics(res.data || []);
+      } catch (e) { console.error('Gagal fetch polyclinics:', e); }
+    };
+    fetchPolyclinics();
+  }, []);
+
   useEffect(() => {
     if (globalSuccessAlert) {
       const timer = setTimeout(() => {
@@ -108,7 +121,8 @@ export default function UserManagementPage() {
       username: '',
       password: '',
       role: 'Petugas Pendaftaran',
-      permissions: DEFAULT_ROLE_PERMISSIONS['Petugas Pendaftaran']
+      permissions: DEFAULT_ROLE_PERMISSIONS['Petugas Pendaftaran'],
+      polyclinic_id: null
     });
     setFormError('');
     setShowModal(true);
@@ -122,7 +136,8 @@ export default function UserManagementPage() {
       username: u.username,
       password: '',
       role: u.role,
-      permissions: u.permissions || DEFAULT_ROLE_PERMISSIONS[u.role] || DEFAULT_ROLE_PERMISSIONS['Petugas Pendaftaran']
+      permissions: u.permissions || DEFAULT_ROLE_PERMISSIONS[u.role] || DEFAULT_ROLE_PERMISSIONS['Petugas Pendaftaran'],
+      polyclinic_id: u.polyclinic_id || null
     });
     setFormError('');
     setShowModal(true);
@@ -132,7 +147,8 @@ export default function UserManagementPage() {
     setFormData({
       ...formData,
       role: newRole,
-      permissions: DEFAULT_ROLE_PERMISSIONS[newRole] || DEFAULT_ROLE_PERMISSIONS['Petugas Pendaftaran']
+      permissions: DEFAULT_ROLE_PERMISSIONS[newRole] || DEFAULT_ROLE_PERMISSIONS['Petugas Pendaftaran'],
+      polyclinic_id: null  // reset poli saat ganti role
     });
   };
 
@@ -278,6 +294,7 @@ export default function UserManagementPage() {
         onSubmit={handleSubmitForm}
         submitting={submitting}
         formError={formError}
+        polyclinics={polyclinics}
       />
 
       {/* Sub-Komponen 3: Modal Hapus User */}
