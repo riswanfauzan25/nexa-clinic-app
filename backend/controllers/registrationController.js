@@ -239,9 +239,9 @@ const updateRegistrationStatus = async (req, res) => {
     } else if (dbStatus === 'Selesai') {
       await db.query("UPDATE queues SET status = 'Selesai' WHERE registration_id = ?", [id]);
     } else if (dbStatus === 'Pemeriksaan' || dbStatus === 'Sedang Diperiksa') {
-      await db.query("UPDATE queues SET status = 'Melayani' WHERE registration_id = ?", [id]);
+      await db.query("UPDATE queues SET status = 'Selesai' WHERE registration_id = ?", [id]);
     } else if (dbStatus === 'Check In') {
-      await db.query("UPDATE queues SET status = 'Memanggil' WHERE registration_id = ?", [id]);
+      await db.query("UPDATE queues SET status = 'Dipanggil' WHERE registration_id = ?", [id]);
     }
 
     return successResponse(res, null, `Status pendaftaran berhasil diubah menjadi ${dbStatus}.`);
