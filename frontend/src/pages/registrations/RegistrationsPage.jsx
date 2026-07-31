@@ -57,11 +57,13 @@ export default function RegistrationsPage() {
     try {
       const response = await api.get(`/registrations?search=${encodeURIComponent(search)}&status=${statusFilter}&date=${dateFilter}`);
       if (response.success) {
-        setRegistrations(response.data || []);
+        const dataList = Array.isArray(response.data) ? response.data : (response.data?.registrations || []);
+        setRegistrations(Array.isArray(dataList) ? dataList : []);
         setCurrentPage(1);
       }
     } catch (error) {
       console.error('Error fetching registrations:', error);
+      setRegistrations([]);
     } finally {
       setLoading(false);
     }
@@ -102,9 +104,10 @@ export default function RegistrationsPage() {
   }, [globalSuccessAlert]);
 
   // Pagination
-  const totalPages = Math.max(1, Math.ceil(registrations.length / ITEMS_PER_PAGE));
+  const regList = Array.isArray(registrations) ? registrations : [];
+  const totalPages = Math.max(1, Math.ceil(regList.length / ITEMS_PER_PAGE));
   const indexOfFirst = (currentPage - 1) * ITEMS_PER_PAGE;
-  const displayed = registrations.slice(indexOfFirst, indexOfFirst + ITEMS_PER_PAGE);
+  const displayed = regList.slice(indexOfFirst, indexOfFirst + ITEMS_PER_PAGE);
 
   const handleOpenCreateModal = () => {
     setFormData({ patient_id: '', polyclinic_id: '', doctor_id: '', payment_method: 'Umum', complaint: '' });
