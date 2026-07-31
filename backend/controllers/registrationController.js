@@ -214,15 +214,15 @@ const updateRegistrationStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const validStatuses = ['Menunggu', 'Sedang Diperiksa', 'Selesai', 'Dibatalkan', 'Waiting', 'In Examination', 'Completed', 'Cancelled'];
+    const validStatuses = ['Menunggu', 'Check In', 'Pemeriksaan', 'Sedang Diperiksa', 'Selesai', 'Dibatalkan', 'Waiting', 'In Examination', 'Completed', 'Cancelled'];
     if (!validStatuses.includes(status)) {
       return errorResponse(res, 'Status pendaftaran tidak valid.', null, 400);
     }
 
-    // Normalisasi status ke Bahasa Indonesia yang tersimpan di DB
+    // Normalisasi status ke Bahasa Indonesia
     let dbStatus = status;
     if (status === 'Waiting') dbStatus = 'Menunggu';
-    if (status === 'In Examination') dbStatus = 'Sedang Diperiksa';
+    if (status === 'In Examination') dbStatus = 'Pemeriksaan';
     if (status === 'Completed') dbStatus = 'Selesai';
     if (status === 'Cancelled') dbStatus = 'Dibatalkan';
 
@@ -238,8 +238,10 @@ const updateRegistrationStatus = async (req, res) => {
       await db.query("UPDATE queues SET status = 'Lewat' WHERE registration_id = ?", [id]);
     } else if (dbStatus === 'Selesai') {
       await db.query("UPDATE queues SET status = 'Selesai' WHERE registration_id = ?", [id]);
-    } else if (dbStatus === 'Sedang Diperiksa') {
+    } else if (dbStatus === 'Pemeriksaan' || dbStatus === 'Sedang Diperiksa') {
       await db.query("UPDATE queues SET status = 'Melayani' WHERE registration_id = ?", [id]);
+    } else if (dbStatus === 'Check In') {
+      await db.query("UPDATE queues SET status = 'Memanggil' WHERE registration_id = ?", [id]);
     }
 
     return successResponse(res, null, `Status pendaftaran berhasil diubah menjadi ${dbStatus}.`);

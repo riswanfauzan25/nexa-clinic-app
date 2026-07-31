@@ -40,11 +40,18 @@ export default function RegistrationTable({
             <Clock className="w-3 h-3" /> Menunggu
           </span>
         );
+      case 'Check In':
+        return (
+          <span className="px-2.5 py-0.5 bg-purple-50 text-purple-800 border border-purple-200 font-semibold rounded text-[11px] flex items-center gap-1 w-fit">
+            <Ticket className="w-3 h-3 text-purple-600" /> Check In
+          </span>
+        );
       case 'In Examination':
+      case 'Pemeriksaan':
       case 'Sedang Diperiksa':
         return (
           <span className="px-2.5 py-0.5 bg-blue-50 text-blue-800 border border-blue-200 font-semibold rounded text-[11px] flex items-center gap-1 w-fit">
-            <AlertCircle className="w-3 h-3 text-blue-600 animate-pulse" /> Sedang Diperiksa
+            <AlertCircle className="w-3 h-3 text-blue-600 animate-pulse" /> Pemeriksaan
           </span>
         );
       case 'Completed':
@@ -88,10 +95,11 @@ export default function RegistrationTable({
             className="w-full sm:w-44 bg-white border border-slate-300 focus:border-blue-700 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none"
           >
             <option value="">Semua Status</option>
-            <option value="Waiting">Menunggu</option>
-            <option value="In Examination">Sedang Diperiksa</option>
-            <option value="Completed">Selesai</option>
-            <option value="Cancelled">Dibatalkan</option>
+            <option value="Menunggu">Menunggu</option>
+            <option value="Check In">Check In</option>
+            <option value="Pemeriksaan">Pemeriksaan</option>
+            <option value="Selesai">Selesai</option>
+            <option value="Dibatalkan">Dibatalkan</option>
           </select>
         </div>
 

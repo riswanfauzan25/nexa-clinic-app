@@ -31,6 +31,7 @@ export default function RegistrationsPage() {
     patient_id: '',
     polyclinic_id: '',
     doctor_id: '',
+    payment_method: 'Umum',
     complaint: ''
   });
   const [formError, setFormError] = useState('');
@@ -95,7 +96,7 @@ export default function RegistrationsPage() {
   const displayed = registrations.slice(indexOfFirst, indexOfFirst + ITEMS_PER_PAGE);
 
   const handleOpenCreateModal = () => {
-    setFormData({ patient_id: '', polyclinic_id: '', doctor_id: '', complaint: '' });
+    setFormData({ patient_id: '', polyclinic_id: '', doctor_id: '', payment_method: 'Umum', complaint: '' });
     setFormError('');
     setShowFormModal(true);
   };

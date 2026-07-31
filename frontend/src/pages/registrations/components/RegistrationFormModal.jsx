@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, AlertCircle, ClipboardList, User, Building2, Stethoscope, FileText } from 'lucide-react';
+import { X, AlertCircle, ClipboardList, User, Building2, Stethoscope, FileText, CreditCard } from 'lucide-react';
 
 export default function RegistrationFormModal({
   show,
@@ -119,6 +119,23 @@ export default function RegistrationFormModal({
             {formData.polyclinic_id && filteredDoctors.length === 0 && (
               <p className="text-[11px] text-amber-600 font-medium mt-1">⚠️ Tidak ada akun Dokter yang ditugaskan di Poli ini. Atur poli dokter di Kelola Pengguna.</p>
             )}
+          </div>
+
+          {/* Jenis Pembayaran */}
+          <div>
+            <label className="block font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
+              <CreditCard className="w-3.5 h-3.5 text-slate-400" />
+              Jenis Pembayaran <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={formData.payment_method || 'Umum'}
+              onChange={(e) => setFormData({ ...formData, payment_method: e.target.value })}
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 outline-none focus:border-blue-700 bg-white"
+            >
+              <option value="Umum">Umum / Mandiri</option>
+              <option value="BPJS Kesehatan">BPJS Kesehatan</option>
+              <option value="Asuransi Swasta">Asuransi Swasta</option>
+            </select>
           </div>
 
           {/* Keluhan Pasien */}
