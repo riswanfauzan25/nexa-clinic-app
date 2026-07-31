@@ -17,19 +17,29 @@ const medicalRecordRoutes = require('./routes/medicalRecordRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Konfigurasi CORS
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// Menangani preflight request secara manual agar aman di Vercel
-app.options('*', cors());
-
 app.use(express.json());
 
+// --- PENANGANAN PREFLIGHT REQUEST OPTIONS AGAR AMAN DI VERCEL ---
+app.use((req, res, next) => {
+    if (req.method === 'OPTIONS') {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+        return res.status(200).json({});
+    }
+    next();
+});
+
 // Routes API Clean Modular Mapping
-app.use('/api', authRoutes);                       // /api/login, /api/logout, /api/me
+app.use('/api', authRoutes);                         // /api/login, /api/logout, /api/me
 app.use('/api/patients', patientRoutes);             // /api/patients (CRUD Master Pasien)
 app.use('/api/polyclinics', polyclinicRoutes);       // /api/polyclinics (CRUD Master Poliklinik)
 app.use('/api/procedures', procedureRoutes);         // /api/procedures (CRUD Master Tindakan Medis)
