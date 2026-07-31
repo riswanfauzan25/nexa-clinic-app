@@ -1,6 +1,6 @@
 # Nexa Clinic - Integrated Hospital & Clinic Information System 🏥
 
-Aplikasi Sistem Informasi Klinik Pratama berbasis web terintegrasi untuk membantu proses administrasi pelayanan pasien, otorisasi hak akses (RBAC Granular), pendaftaran kunjungan, pengelolaan antrean, hingga pencatatan pemeriksaan rekam medis dokter (SOAP).
+Aplikasi Sistem Informasi Klinik Pratama berbasis web terintegrasi untuk membantu proses administrasi pelayanan pasien, otorisasi hak akses (RBAC Granular), pendaftaran kunjungan, pengelolaan antrean, pencatatan rekam medis dokter (SOAP), hingga pencetakan resume medis pasien.
 
 ---
 
@@ -13,6 +13,7 @@ Aplikasi Sistem Informasi Klinik Pratama berbasis web terintegrasi untuk membant
 | **Database** | MySQL (Driver `mysql2/promise`) |
 | **Authentication** | JSON Web Token (JWT) & Bcrypt Password Hashing |
 | **Security & RBAC** | Dynamic Granular Permission Checklist System (Spatie Style) |
+| **Error Handling** | React Error Boundary & Global API Interceptor |
 | **Version Control** | Git |
 
 ---
@@ -25,60 +26,68 @@ Aplikasi Sistem Informasi Klinik Pratama berbasis web terintegrasi untuk membant
    - Pengecekan otorisasi berlapis di Backend (Middleware `authorizeRoles`) dan Frontend (`hasPermission`).
 
 2. **Top Navbar & Dynamic Accordion Submenu Sidebar**:
-   - **Accordion Submenu Navigation**: Navigasi terkelompok (*Otorisasi System*, *Master Data*, *Pelayanan Klinik*) dengan panah expand/collapse yang ringkas dan tidak kepanjangan.
+   - **Accordion Submenu Navigation**: Navigasi terkelompok (*Otorisasi System*, *Master Data*, *Pelayanan Klinik*) dengan panah expand/collapse yang ringkas.
    - **Auto-Filter RBAC**: Submenu dan kelompok menu otomatis disembunyikan jika user tidak memiliki izin akses.
    - Profile Dropdown Box (Nama, Username, Badge Role, & Dialog Konfirmasi Logout).
 
-3. **Modul Kelola Pengguna (User Management)**:
+3. **Dashboard Statistik & Filter Laporan Bulanan (Role-Aware)**:
+   - **Kartu Statistik Terisolasi per Role**: Statistik kunjungan otomatis menyaring data dokter yang bersangkutan saat login sebagai Dokter DPJP.
+   - **Filter Laporan Periode Bulanan**: Pilihan Bulan (Januari - Desember) & Tahun Dinamis (membaca dari database `availableYears`) untuk menampilkan total kunjungan bulanan, antrean terbit, dan breakdown kunjungan per poliklinik.
+   - **Tombol Pintas "Hari Ini"**: Mereset filter periode ke bulan & tahun berjalan dengan 1 klik.
+
+4. **Modul Kelola Pengguna (User Management)**:
    - Manajemen akun pegawai, dokter, dan petugas pendaftaran.
    - Pengaturan checklist hak akses modular per aksi.
    - Pencarian real-time, pagination, modal form CRUD, & alert notifikasi sukses.
 
-4. **Katalog Master Data & Arsitektur Controller Terpisah**:
-   - **Clean Modular Architecture**: Seluruh router dan controller terpisah 1-to-1 (`polyclinicController`, `procedureController`, `medicineController`, `queueController`, `patientController`, `userController`).
+5. **Katalog Master Data & Arsitektur Controller Terpisah**:
+   - **Clean Modular Architecture**: Seluruh router dan controller terpisah 1-to-1 (`polyclinicController`, `procedureController`, `medicineController`, `queueController`, `patientController`, `userController`, `medicalRecordController`).
    - **Master Data Pasien**: Auto-generate Nomor Rekam Medis (`RM-YYYYMMDD-001`), validasi NIK 16 digit, Modal Detail Pasien + kalkulasi umur otomatis dari tanggal lahir.
-   - **Master Data Poliklinik (`polyclinics`)**: Katalog layanan spesialisasi poli (Poli Umum, Poli Gigi, Poli Anak) yang terhubung ke loket pendaftaran.
-   - **Master Data Tindakan Medis (`procedures`)**: Katalog kode tindakan medis (`TDK-001`) yang terhubung ke pemeriksaan Dokter (SOAP).
+   - **Master Data Poliklinik (`polyclinics`)**: Katalog layanan spesialisasi poli (Poli Umum, Poli Gigi, Poli Anak) yang terhubung ke pendaftaran & tindakan.
+   - **Master Data Tindakan Medis (`procedures`)**: Katalog kode tindakan medis (`TDK-001`) yang terhubung ke poliklinik dan form SOAP Dokter.
    - **Master Data Obat-obatan (`medicines`)**: Katalog kode obat (`OBT-001`) beserta satuan kemasan (Tablet, Kaplet, Botol, Salep) yang terhubung ke Resep Dokter.
 
-5. **Modul Transaksional Pelayanan Klinik (Proses Bisnis Terintegrasi)**:
+6. **Modul Transaksional Pelayanan Klinik (Proses Bisnis Terintegrasi)**:
    - **Pendaftaran Kunjungan Pasien (`registrations`)**: Mendaftarkan pasien berobat, memilih poli & dokter jaga, jenis pembayaran (Umum, BPJS, Asuransi), auto-generate nomor kunjungan (`REG-YYYYMMDD-001`), cetak tiket antrean, validasi pendaftaran ganda aktif, Modal Detail Pendaftaran, dan Export Laporan PDF.
-   - **Kelola & Panggil Antrean Pasien (`queues`)**: Penerbitan nomor antrean per poli (`A001`, `B001`), pemanggilan audio suara antrean loket, kontrol status (`Menunggu` ➔ `Dipanggil` / `Check In` ➔ `Melayani` / `Pemeriksaan` ➔ `Selesai` / `Lewat`), filter status antrean aktif (menyembunyikan yang selesai secara default), panggil lagi antrean yang dilewati, serta Modal Konfirmasi Lewati Kustom.
-   - **Display TV Monitor Antrean (`/queue-display`)**: Tampilan Layar TV Monitor Ruang Tunggu real-time untuk memamerkan nomor antrean yang sedang dipanggil dan daftar antrean berikutnya.
-   - **Pemeriksaan Dokter & SOAP (`medical_records`)**: Pencatatan data Subjektif, Objektif, Assessment, & Plan.
-   - **Input Tindakan Medis (`patient_procedures`)**: Mencatat rincian tindakan medis yang dilakukan dokter kepada pasien.
-   - **Input Resep Obat (`patient_prescriptions`)**: Mencatat rincian obat, dosis, dan aturan minum pasien.
+   - **Kelola & Panggil Antrean Pasien (`queues`)**: Penerbitan nomor antrean per poli (`A001`, `B001`), pemanggilan audio suara antrean loket (ejaan huruf & angka), kontrol status (`Menunggu` ➔ `Dipanggil` / `Check In` ➔ `Melayani` / `Pemeriksaan` ➔ `Selesai` / `Lewat`), filter status antrean aktif, panggil lagi antrean dilewati, serta Modal Konfirmasi Lewati Kustom.
+   - **Display TV Monitor Antrean (`/queue-display`)**: Tampilan Layar TV Monitor Ruang Tunggu real-time bertema terang (*Light Mode*).
+   - **Pemeriksaan Dokter & SOAP (`medical_records`)**: Form 4 seksi (Vital Signs / Objective, SOAP Notes, Input Tindakan Medis terfilter poli + popup ketik manual auto-save ke master, dan Input Resep Obat).
+   - **Modal Detail SOAP & Cetak Resume Medis Pasien**: Modal detail rekam medis read-only lengkap dengan tombol **`🖨️ Cetak Resume Medis & Resep`** yang secara otomatis mencetak dokumen resmi bertata letak profesional (`printMedicalRecord.js`).
+   - **Modal Riwayat Pasien (`PatientHistoryModal`)**: Menampilkan seluruh riwayat rekam medis terdahulu milik pasien tertentu.
+
+7. **React Error Boundary & Perlindungan Layar Blank**:
+   - Dilengkapi dengan `ErrorBoundary.jsx` bertema terang (*Light Theme*) untuk menangkap kesalahan JavaScript rendering dan menyediakan tombol "Muat Ulang Halaman".
 
 ---
 
 ## 📬 Dokumentasi REST API (Postman Collection)
 
-File Postman Collection tersedia di root folder proyek: **`postman_collection.json`**
+File Postman Collection resmi tersedia di root folder proyek: **`postman_collection.json`**
 
 ### Cara Import ke Postman:
 1. Buka aplikasi **Postman** di komputer Anda.
 2. Klik tombol **`Import`** di pojok kiri atas.
 3. Pilih tab **`File`** ➔ Klik **`Choose Files`**.
 4. Pilih file **`postman_collection.json`** dari folder root proyek ini.
-5. Klik **`Import`** — Collection akan langsung muncul di sidebar Postman.
+5. Klik **`Import`** — Collection **`🩺 Nexa Clinic API Collection`** akan langsung muncul di sidebar Postman.
 
 ### Cara Penggunaan:
 1. Jalankan backend server terlebih dahulu: `cd backend && npm run dev`
 2. Buka folder **`🔐 Auth - Autentikasi`** ➔ Jalankan request **`Login`**
-3. Token JWT akan **otomatis tersimpan** ke variabel `{{token}}` (via Postman Test Script)
-4. Semua endpoint lain akan otomatis menggunakan token tersebut via `Authorization: Bearer {{token}}`
+3. Token JWT akan **otomatis tersimpan** ke variabel `{{token}}` (via Postman Test Script).
+4. Semua endpoint lain akan otomatis menggunakan token tersebut via `Authorization: Bearer {{token}}`.
 
 | Kelompok | Endpoint | Method | Auth |
 | :--- | :--- | :--- | :--- |
 | **Auth** | `/api/login` | POST | ❌ Public |
 | **Auth** | `/api/me` | GET | ✅ Authenticated |
 | **Auth** | `/api/logout` | POST | ✅ Authenticated |
-| **Dashboard** | `/api/dashboard/summary` | GET | ✅ Authenticated |
+| **Dashboard** | `/api/dashboard/summary?month=MM&year=YYYY` | GET | ✅ Authenticated |
 | **Users** | `/api/users` | GET, POST, PUT, DELETE | ✅ Admin Only |
 | **Doctors** | `/api/doctors` | GET | ✅ Authenticated |
 | **Patients** | `/api/patients` | GET, POST, PUT, DELETE | ✅ Authenticated |
 | **Polyclinics** | `/api/polyclinics` | GET, POST, PUT, DELETE | ✅ Authenticated |
-| **Procedures** | `/api/procedures` | GET, POST, PUT, DELETE | ✅ Authenticated |
+| **Procedures** | `/api/procedures` | GET, POST, PUT, DELETE | ✅ Admin / Dokter |
 | **Medicines** | `/api/medicines` | GET, POST, PUT, DELETE | ✅ Authenticated |
 | **Registrations** | `/api/registrations` | GET, POST, DELETE | ✅ Authenticated |
 | **Registrations Status** | `/api/registrations/:id/status` | PUT | ✅ Authenticated |
@@ -133,7 +142,7 @@ db_nexa_clinic
 │   ├── 2. patients               (Data identitas pasien & No. Rekam Medis / NIK)
 │   ├── 3. polyclinics            (Data master poliklinik klinik)
 │   ├── 4. medicines              (Data master obat-obatan & satuan kemasan)
-│   └── 5. procedures             (Data master kode tindakan medis)
+│   └── 5. procedures             (Data master kode tindakan medis & relasi polyclinic_id)
 │
 └── 🔵 KELOMPOK TRANSAKSIONAL PELAYANAN
     ├── 6. registrations          (Data pendaftaran kunjungan pasien ke poli & dokter)
@@ -227,7 +236,7 @@ nexa-clinic-app/
 │   │   └── database.js         # Pool Koneksi MySQL Driver (Process.env)
 │   ├── controllers/
 │   │   ├── authController.js        # Controller Login, Logout, & Me
-│   │   ├── dashboardController.js   # Controller Statistics & Summary (Role-Aware)
+│   │   ├── dashboardController.js   # Controller Statistics & Summary (Month/Year Filter)
 │   │   ├── patientController.js     # Controller CRUD Master Pasien (Role-Aware)
 │   │   ├── polyclinicController.js  # Controller CRUD Master Poliklinik
 │   │   ├── procedureController.js   # Controller CRUD Master Tindakan Medis (Filter Poli)
@@ -240,7 +249,7 @@ nexa-clinic-app/
 │   │   └── auth.js                  # Verifikasi JWT & Otorisasi Roles
 │   ├── routes/
 │   │   ├── authRoutes.js            # API Routes Authentication
-│   │   ├── dashboardRoutes.js       # API Routes Dashboard
+│   │   ├── dashboardRoutes.js       # API Routes Dashboard Summary
 │   │   ├── patientRoutes.js         # API Routes Master Pasien
 │   │   ├── polyclinicRoutes.js      # API Routes Master Poliklinik
 │   │   ├── procedureRoutes.js       # API Routes Master Tindakan Medis
@@ -260,6 +269,7 @@ nexa-clinic-app/
 │   │   ├── api/
 │   │   │   └── axios.js        # Axios Client & Interceptor JWT
 │   │   ├── components/
+│   │   │   ├── ErrorBoundary.jsx # React Error Boundary (Theme Light)
 │   │   │   ├── Navbar.jsx      # Top Header & Profile Dropdown
 │   │   │   └── Sidebar.jsx     # Accordion Submenu Navigation filtered by RBAC
 │   │   ├── context/
@@ -268,7 +278,7 @@ nexa-clinic-app/
 │   │   │   ├── auth/
 │   │   │   │   └── LoginPage.jsx
 │   │   │   ├── dashboard/
-│   │   │   │   └── DashboardPage.jsx
+│   │   │   │   └── DashboardPage.jsx # Dashboard & Month/Year Report Filter
 │   │   │   ├── medicines/
 │   │   │   │   └── MedicinesPage.jsx # CRUD Master Obat-obatan
 │   │   │   ├── patients/
@@ -283,13 +293,18 @@ nexa-clinic-app/
 │   │   │   │   └── components/ (RegistrationTable, FormModal, DetailModal, TicketModal, DeleteModal, CancelModal)
 │   │   │   ├── queues/
 │   │   │   │   ├── QueuesPage.jsx      # Kelola & Panggil Antrean Loket
-│   │   │   │   ├── QueueDisplayPage.jsx # Display TV Monitor Ruang Tunggu
-│   │   │   │   └── components/ (QueueTable, QueueSkipModal)
+      │   │   │   ├── QueueDisplayPage.jsx # Display TV Monitor Ruang Tunggu
+      │   │   │   └── components/ (QueueTable, QueueSkipModal)
+│   │   │   ├── medical-records/
+│   │   │   │   ├── MedicalRecordsPage.jsx
+│   │   │   │   └── components/ (MedicalRecordFormModal, MedicalRecordDetailModal, PatientHistoryModal)
 │   │   │   └── users/
 │   │   │       ├── UserManagementPage.jsx
 │   │   │       └── components/ (UserTable, UserFormModal, UserDeleteModal)
-│   │   ├── App.jsx             # Entrypoint Komponen React
-│   │   ├── index.css           # Custom Styling & Tailwind Imports
+│   │   ├── utils/
+│   │   │   └── printMedicalRecord.js # Helper Cetak Resume Medis & Resep Pasien
+│   │   ├── App.jsx             # Entrypoint Komponen React & ErrorBoundary
+│   │   ├── index.css           # Custom Styling & Light Theme Tailwind
 │   │   └── main.jsx
 │   ├── vite.config.js          # Vite Config & API Proxy
 │   └── package.json

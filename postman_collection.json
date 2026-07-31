@@ -104,11 +104,15 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{base_url}}/api/dashboard/summary",
+              "raw": "{{base_url}}/api/dashboard/summary?month=7&year=2026",
               "host": ["{{base_url}}"],
-              "path": ["api", "dashboard", "summary"]
+              "path": ["api", "dashboard", "summary"],
+              "query": [
+                { "key": "month", "value": "7", "description": "Bulan laporan (1-12)" },
+                { "key": "year", "value": "2026", "description": "Tahun laporan (YYYY)" }
+              ]
             },
-            "description": "Mendapatkan statistik ringkasan: total pasien, kunjungan hari ini, antrean aktif, dan pendapatan."
+            "description": "Mendapatkan statistik ringkasan bulanan: total master pasien, kunjungan periode, antrean terbit, pasien menunggu, selesai dilayani, dan breakdown poliklinik."
           },
           "response": []
         }
