@@ -9,9 +9,7 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  AlertCircle,
-  Download,
-  Calendar
+  AlertCircle
 } from 'lucide-react';
 
 export default function RegistrationTable({
@@ -21,8 +19,6 @@ export default function RegistrationTable({
   setSearch,
   statusFilter,
   setStatusFilter,
-  dateFilter,
-  setDateFilter,
   totalCount,
   currentPage,
   totalPages,
@@ -33,8 +29,7 @@ export default function RegistrationTable({
   onRefresh,
   onOpenTicket,
   onUpdateStatus,
-  onDelete,
-  onExportCSV
+  onDelete
 }) {
   const getStatusBadge = (status) => {
     switch (status) {
@@ -94,21 +89,10 @@ export default function RegistrationTable({
             />
           </div>
 
-          {/* Filter Tanggal Kunjungan */}
-          <div className="relative w-full sm:w-auto">
-            <input
-              type="date"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className="w-full sm:w-auto bg-white border border-slate-300 focus:border-blue-700 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none cursor-pointer font-medium"
-              title="Filter Tanggal Kunjungan"
-            />
-          </div>
-
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full sm:w-40 bg-white border border-slate-300 focus:border-blue-700 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none"
+            className="w-full sm:w-44 bg-white border border-slate-300 focus:border-blue-700 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none"
           >
             <option value="">Semua Status</option>
             <option value="Menunggu">Menunggu</option>
@@ -120,15 +104,6 @@ export default function RegistrationTable({
         </div>
 
         <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-          <button
-            onClick={onExportCSV}
-            className="px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-lg text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
-            title="Export Data Laporan Pendaftaran (.CSV / Excel)"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Export Laporan</span>
-          </button>
-
           <span className="text-xs text-slate-500 font-medium">
             Total: <strong className="text-slate-800">{totalCount}</strong> Pendaftaran
           </span>

@@ -21,11 +21,9 @@ export default function RegistrationsPage() {
   const [polyclinics, setPolyclinics] = useState([]);
   const [doctors, setDoctors] = useState([]);
 
-  const todayStr = new Date().toISOString().slice(0, 10);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [dateFilter, setDateFilter] = useState(todayStr);
   const [currentPage, setCurrentPage] = useState(1);
   const [globalSuccessAlert, setGlobalSuccessAlert] = useState('');
 
@@ -55,7 +53,7 @@ export default function RegistrationsPage() {
   const fetchRegistrations = async () => {
     setLoading(true);
     try {
-      const response = await api.get(`/registrations?search=${encodeURIComponent(search)}&status=${statusFilter}&date=${dateFilter}`);
+      const response = await api.get(`/registrations?search=${encodeURIComponent(search)}&status=${statusFilter}`);
       if (response.success) {
         setRegistrations(response.data || []);
         setCurrentPage(1);
@@ -88,7 +86,7 @@ export default function RegistrationsPage() {
 
   useEffect(() => {
     fetchRegistrations();
-  }, [search, statusFilter, dateFilter]);
+  }, [search, statusFilter]);
 
   useEffect(() => {
     fetchMasterData();
@@ -169,36 +167,19 @@ export default function RegistrationsPage() {
     }
   };
 
-  const handleExportCSV = () => {
-    if (registrations.length === 0) {
-      alert('Tidak ada data pendaftaran untuk diexport.');
-      return;
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      const response = await api.delete(`/registrations/${itemToDelete.id}`);
+      if (response.success) {
+        setShowDeleteModal(false);
+        setGlobalSuccessAlert(`Pendaftaran ${itemToDelete.registration_number} (${itemToDelete.patient_name}) berhasil dihapus.`);
+        setItemToDelete(null);
+        fetchRegistrations();
+      }
+    } catch (error) {
+      alert(error.message || 'Gagal menghapus data pendaftaran.');
     }
-
-    const headers = ['No', 'No Antrean', 'No Kunjungan', 'Tanggal', 'No RM', 'Nama Pasien', 'NIK', 'Poli Tujuan', 'Dokter Jaga', 'Jenis Pembayaran', 'Status', 'Keluhan'];
-    const rows = registrations.map((r, i) => [
-      i + 1,
-      r.queue_number || '-',
-      r.registration_number || '-',
-      r.registration_date ? new Date(r.registration_date).toLocaleDateString('id-ID') : '-',
-      r.medical_record_number || '-',
-      `"${(r.patient_name || '').replace(/"/g, '""')}"`,
-      `'${r.nik || '-'}`,
-      `"${(r.polyclinic_name || '').replace(/"/g, '""')}"`,
-      `"${(r.doctor_name || '').replace(/"/g, '""')}"`,
-      r.payment_method || 'Umum',
-      r.status || '-',
-      `"${(r.complaint || '').replace(/"/g, '""')}"`
-    ]);
-
-    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Laporan_Pendaftaran_Pasien_${dateFilter || 'semua'}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   return (
@@ -246,8 +227,6 @@ export default function RegistrationsPage() {
         setSearch={setSearch}
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
-        dateFilter={dateFilter}
-        setDateFilter={setDateFilter}
         totalCount={registrations.length}
         currentPage={currentPage}
         totalPages={totalPages}
@@ -259,7 +238,6 @@ export default function RegistrationsPage() {
         onOpenTicket={handleOpenTicketModal}
         onUpdateStatus={handleOpenCancelModal}
         onDelete={handleOpenDeleteModal}
-        onExportCSV={handleExportCSV}
       />
 
       {/* Form Modal */}
