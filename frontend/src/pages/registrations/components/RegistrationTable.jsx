@@ -165,7 +165,7 @@ export default function RegistrationTable({
                   <span>Memuat data pendaftaran kunjungan...</span>
                 </td>
               </tr>
-            ) : (!Array.isArray(displayed) || displayed.length === 0) ? (
+            ) : displayed.length === 0 ? (
               <tr>
                 <td colSpan="8" className="text-center py-10 text-slate-400">
                   <ClipboardList className="w-8 h-8 mx-auto mb-2 text-slate-300" />
