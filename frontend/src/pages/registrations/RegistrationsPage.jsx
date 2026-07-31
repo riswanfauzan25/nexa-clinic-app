@@ -7,6 +7,7 @@ import RegistrationFormModal from './components/RegistrationFormModal';
 import RegistrationTicketModal from './components/RegistrationTicketModal';
 import RegistrationDeleteModal from './components/RegistrationDeleteModal';
 import RegistrationCancelModal from './components/RegistrationCancelModal';
+import ExportWarningModal from './components/ExportWarningModal';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -50,6 +51,9 @@ export default function RegistrationsPage() {
 
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [itemToCancel, setItemToCancel] = useState(null);
+
+  // Modal Peringatan Export Kosong
+  const [showExportWarning, setShowExportWarning] = useState(false);
 
   const fetchRegistrations = async () => {
     setLoading(true);
@@ -187,7 +191,7 @@ export default function RegistrationsPage() {
 
   const handleExportPDF = () => {
     if (!Array.isArray(registrations) || registrations.length === 0) {
-      alert('Tidak ada data pendaftaran untuk diexport ke PDF.');
+      setShowExportWarning(true);
       return;
     }
 
@@ -367,6 +371,13 @@ export default function RegistrationsPage() {
         item={itemToDelete}
         onConfirm={handleConfirmDelete}
         onClose={() => { setShowDeleteModal(false); setItemToDelete(null); }}
+      />
+
+      {/* Modal Peringatan Export PDF Kosong */}
+      <ExportWarningModal
+        show={showExportWarning}
+        message="Tidak ada data pendaftaran pada filter ini yang dapat diexport ke file PDF."
+        onClose={() => setShowExportWarning(false)}
       />
     </div>
   );
