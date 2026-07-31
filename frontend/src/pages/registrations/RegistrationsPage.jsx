@@ -5,6 +5,8 @@ import { ClipboardList, Plus, X, CheckCircle2, Ticket } from 'lucide-react';
 import RegistrationTable from './components/RegistrationTable';
 import RegistrationFormModal from './components/RegistrationFormModal';
 import RegistrationTicketModal from './components/RegistrationTicketModal';
+import RegistrationDeleteModal from './components/RegistrationDeleteModal';
+import RegistrationCancelModal from './components/RegistrationCancelModal';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -40,6 +42,13 @@ export default function RegistrationsPage() {
   // Modal Cetak Tiket Antrean
   const [showTicketModal, setShowTicketModal] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
+
+  // Modal Hapus & Pembatalan
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [itemToCancel, setItemToCancel] = useState(null);
 
   const fetchRegistrations = async () => {
     setLoading(true);
@@ -133,24 +142,39 @@ export default function RegistrationsPage() {
     }
   };
 
-  const handleUpdateStatus = async (item, newStatus) => {
+  const handleOpenCancelModal = (item) => {
+    setItemToCancel(item);
+    setShowCancelModal(true);
+  };
+
+  const handleOpenDeleteModal = (item) => {
+    setItemToDelete(item);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!itemToCancel) return;
     try {
-      const response = await api.put(`/registrations/${item.id}/status`, { status: newStatus });
+      const response = await api.put(`/registrations/${itemToCancel.id}/status`, { status: 'Dibatalkan' });
       if (response.success) {
-        setGlobalSuccessAlert(`Status kunjungan ${item.registration_number} diubah menjadi ${newStatus}.`);
+        setShowCancelModal(false);
+        setGlobalSuccessAlert(`Kunjungan ${itemToCancel.registration_number} (${itemToCancel.patient_name}) berhasil dibatalkan.`);
+        setItemToCancel(null);
         fetchRegistrations();
       }
     } catch (error) {
-      alert(error.message || 'Gagal mengubah status pendaftaran.');
+      alert(error.message || 'Gagal membatalkan kunjungan.');
     }
   };
 
-  const handleDelete = async (item) => {
-    if (!window.confirm(`Hapus pendaftaran ${item.registration_number} (${item.patient_name})?`)) return;
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      const response = await api.delete(`/registrations/${item.id}`);
+      const response = await api.delete(`/registrations/${itemToDelete.id}`);
       if (response.success) {
-        setGlobalSuccessAlert(`Pendaftaran ${item.registration_number} berhasil dihapus.`);
+        setShowDeleteModal(false);
+        setGlobalSuccessAlert(`Pendaftaran ${itemToDelete.registration_number} (${itemToDelete.patient_name}) berhasil dihapus.`);
+        setItemToDelete(null);
         fetchRegistrations();
       }
     } catch (error) {
@@ -212,8 +236,8 @@ export default function RegistrationsPage() {
         canDelete={canDelete}
         onRefresh={fetchRegistrations}
         onOpenTicket={handleOpenTicketModal}
-        onUpdateStatus={handleUpdateStatus}
-        onDelete={handleDelete}
+        onUpdateStatus={handleOpenCancelModal}
+        onDelete={handleOpenDeleteModal}
       />
 
       {/* Form Modal */}
@@ -235,6 +259,22 @@ export default function RegistrationsPage() {
         show={showTicketModal}
         registration={selectedTicket}
         onClose={() => setShowTicketModal(false)}
+      />
+
+      {/* Modal Konfirmasi Pembatalan */}
+      <RegistrationCancelModal
+        show={showCancelModal}
+        item={itemToCancel}
+        onConfirm={handleConfirmCancel}
+        onClose={() => { setShowCancelModal(false); setItemToCancel(null); }}
+      />
+
+      {/* Modal Konfirmasi Hapus */}
+      <RegistrationDeleteModal
+        show={showDeleteModal}
+        item={itemToDelete}
+        onConfirm={handleConfirmDelete}
+        onClose={() => { setShowDeleteModal(false); setItemToDelete(null); }}
       />
     </div>
   );

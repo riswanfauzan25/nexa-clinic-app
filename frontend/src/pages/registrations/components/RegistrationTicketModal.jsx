@@ -57,7 +57,7 @@ export default function RegistrationTicketModal({ show, registration, onClose })
               <span className="text-slate-800 font-medium">{registration.doctor_name}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Tanggal & Jam:</span>
+              <span className="text-slate-500">Tanggal & Jam Pendaftaran:</span>
               <span className="text-slate-700">{new Date(registration.created_at || Date.now()).toLocaleString('id-ID')}</span>
             </div>
           </div>
