@@ -6,7 +6,7 @@ const {
   createPolyclinic,
   updatePolyclinic,
   deletePolyclinic
-} = require('../controllers/masterController');
+} = require('../controllers/polyclinicController');
 
 router.use(verifyToken);
 

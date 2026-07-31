@@ -6,7 +6,7 @@ const {
   createProcedure,
   updateProcedure,
   deleteProcedure
-} = require('../controllers/masterController');
+} = require('../controllers/procedureController');
 
 router.use(verifyToken);
 

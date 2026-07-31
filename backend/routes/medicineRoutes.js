@@ -6,7 +6,7 @@ const {
   createMedicine,
   updateMedicine,
   deleteMedicine
-} = require('../controllers/masterController');
+} = require('../controllers/medicineController');
 
 router.use(verifyToken);
 
