@@ -591,6 +591,201 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "👨‍⚕️ Doctors - Data Dokter",
+      "item": [
+        {
+          "name": "Get Active Doctors",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/doctors",
+              "host": ["{{base_url}}"],
+              "path": ["api", "doctors"]
+            },
+            "description": "Mendapatkan daftar seluruh dokter aktif untuk dropdown pendaftaran."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📋 Registrations - Pendaftaran Pasien",
+      "item": [
+        {
+          "name": "Get All Registrations",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/registrations?search=&status=&date=&polyclinic_id=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "registrations"],
+              "query": [
+                { "key": "search", "value": "" },
+                { "key": "status", "value": "" },
+                { "key": "date", "value": "" },
+                { "key": "polyclinic_id", "value": "" }
+              ]
+            },
+            "description": "Mendapatkan daftar pendaftaran pasien (terisolasi per Dokter jika login sebagai Dokter)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Registration By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/registrations/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "registrations", "1"]
+            },
+            "description": "Mendapatkan detail pendaftaran pasien berdasarkan ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Registration",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"patient_id\": 1,\n    \"polyclinic_id\": 1,\n    \"doctor_id\": 2,\n    \"payment_method\": \"BPJS Kesehatan\",\n    \"complaint\": \"Demam tinggi dan sakit kepala sejak kemarin.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/registrations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "registrations"]
+            },
+            "description": "Mendaftarkan kunjungan pasien baru dan menerbitkan nomor antrean otomatis."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Registration Status (Batalkan)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"Dibatalkan\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/registrations/1/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "registrations", "1", "status"]
+            },
+            "description": "Memperbarui status pendaftaran pasien."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Registration",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/registrations/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "registrations", "1"]
+            },
+            "description": "Menghapus data pendaftaran pasien."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔢 Queues - Kelola & Panggil Antrean",
+      "item": [
+        {
+          "name": "Get Today Queues",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/queues?polyclinic_id=&status=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "queues"],
+              "query": [
+                { "key": "polyclinic_id", "value": "" },
+                { "key": "status", "value": "" }
+              ]
+            },
+            "description": "Mendapatkan daftar antrean pasien hari ini."
+          },
+          "response": []
+        },
+        {
+          "name": "Call Queue (Panggil Antrean)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/queues/1/call",
+              "host": ["{{base_url}}"],
+              "path": ["api", "queues", "1", "call"]
+            },
+            "description": "Memanggil antrean pasien di loket (Status: Dipanggil / Check In)."
+          },
+          "response": []
+        },
+        {
+          "name": "Serve Queue (Masuk Periksa Dokter)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/queues/1/serve",
+              "host": ["{{base_url}}"],
+              "path": ["api", "queues", "1", "serve"]
+            },
+            "description": "Memasukkan pasien ke ruang periksa Dokter (Status: Melayani / Pemeriksaan)."
+          },
+          "response": []
+        },
+        {
+          "name": "Skip Queue (Lewati Antrean)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/queues/1/skip",
+              "host": ["{{base_url}}"],
+              "path": ["api", "queues", "1", "skip"]
+            },
+            "description": "Melewati antrean pasien yang tidak merespons (Status: Lewat)."
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }

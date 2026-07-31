@@ -223,19 +223,28 @@ nexa-clinic-app/
 │   ├── config/
 │   │   └── database.js         # Pool Koneksi MySQL Driver (Process.env)
 │   ├── controllers/
-│   │   ├── authController.js   # Controller Login, Logout, & Me
-│   │   ├── dashboardController.js # Controller Statistics & Summary
-│   │   ├── masterController.js # Controller CRUD Poliklinik, Procedures, & Medicines
-│   │   ├── patientController.js # Controller CRUD Master Pasien
-│   │   └── userController.js    # Controller CRUD Pengguna & RBAC
+│   │   ├── authController.js        # Controller Login, Logout, & Me
+│   │   ├── dashboardController.js   # Controller Statistics & Summary (Role-Aware)
+│   │   ├── patientController.js     # Controller CRUD Master Pasien (Role-Aware)
+│   │   ├── polyclinicController.js  # Controller CRUD Master Poliklinik
+│   │   ├── procedureController.js   # Controller CRUD Master Tindakan Medis
+│   │   ├── medicineController.js    # Controller CRUD Master Obat-obatan
+│   │   ├── registrationController.js # Controller Pendaftaran Kunjungan Pasien
+│   │   ├── queueController.js       # Controller Kelola & Panggil Antrean (Role-Aware)
+│   │   └── userController.js        # Controller CRUD Pengguna & RBAC
 │   ├── middleware/
-│   │   └── auth.js             # Verifikasi JWT & Otorisasi Roles
+│   │   └── auth.js                  # Verifikasi JWT & Otorisasi Roles
 │   ├── routes/
-│   │   ├── authRoutes.js       # API Routes Authentication
-│   │   ├── dashboardRoutes.js  # API Routes Dashboard
-│   │   ├── masterRoutes.js     # API Routes Master Data (Poli, Procedures, Medicines)
-│   │   ├── patientRoutes.js    # API Routes Patients
-│   │   └── userRoutes.js       # API Routes User Management
+│   │   ├── authRoutes.js            # API Routes Authentication
+│   │   ├── dashboardRoutes.js       # API Routes Dashboard
+│   │   ├── patientRoutes.js         # API Routes Master Pasien
+│   │   ├── polyclinicRoutes.js      # API Routes Master Poliklinik
+│   │   ├── procedureRoutes.js       # API Routes Master Tindakan Medis
+│   │   ├── medicineRoutes.js        # API Routes Master Obat-obatan
+│   │   ├── registrationRoutes.js    # API Routes Pendaftaran Kunjungan
+│   │   ├── queueRoutes.js           # API Routes Kelola Antrean
+│   │   ├── doctorRoutes.js          # API Routes Daftar Dokter Aktif
+│   │   └── userRoutes.js            # API Routes User Management
 │   ├── utils/
 │   │   └── response.js         # Standard Response JSON Helper
 │   ├── .env.example            # Template Environment Variable Backend
