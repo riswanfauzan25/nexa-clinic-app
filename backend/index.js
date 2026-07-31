@@ -8,6 +8,7 @@ const patientRoutes = require('./routes/patientRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const userRoutes = require('./routes/userRoutes');
 const masterRoutes = require('./routes/masterRoutes');
+const registrationRoutes = require('./routes/registrationRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,6 +22,7 @@ app.use('/api', masterRoutes);             // melayani CRUD /api/polyclinics, /a
 app.use('/api/patients', patientRoutes);     // melayani CRUD /api/patients
 app.use('/api/dashboard', dashboardRoutes); // melayani /api/dashboard/summary
 app.use('/api/users', userRoutes);         // melayani CRUD /api/users (Admin Only)
+app.use('/api/registrations', registrationRoutes); // melayani CRUD /api/registrations
 
 app.get('/', (req, res) => {
   res.json({

@@ -9,6 +9,7 @@ import PatientsPage from './pages/patients/PatientsPage';
 import PolyclinicsPage from './pages/polyclinics/PolyclinicsPage';
 import ProceduresPage from './pages/procedures/ProceduresPage';
 import MedicinesPage from './pages/medicines/MedicinesPage';
+import RegistrationsPage from './pages/registrations/RegistrationsPage';
 
 function MainApp() {
   const { user, loading } = useAuth();
@@ -43,12 +44,7 @@ function MainApp() {
       case 'medicines':
         return <MedicinesPage />;
       case 'registrations':
-        return (
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-800 mb-2">Pendaftaran Pasien</h2>
-            <p className="text-slate-500 text-sm">Modul Pendaftaran Kunjungan akan dirender di sini...</p>
-          </div>
-        );
+        return <RegistrationsPage />;
       case 'queues':
         return (
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">

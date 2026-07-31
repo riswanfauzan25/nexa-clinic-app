@@ -15,7 +15,7 @@ const getRegistrations = async (req, res) => {
     let queryParams = [];
 
     if (search) {
-      whereClauses.push('(p.name LIKE ? OR p.medical_record_number LIKE ? OR r.registration_number LIKE ?)');
+      whereClauses.push('(p.name LIKE ? OR p.medical_record_number LIKE ? OR CONCAT("REG-", r.id) LIKE ?)');
       const pattern = `%${search}%`;
       queryParams.push(pattern, pattern, pattern);
     }
@@ -26,7 +26,7 @@ const getRegistrations = async (req, res) => {
     }
 
     if (date) {
-      whereClauses.push('r.registration_date = ?');
+      whereClauses.push('r.visit_date = ?');
       queryParams.push(date);
     }
 
@@ -35,7 +35,7 @@ const getRegistrations = async (req, res) => {
     const query = `
       SELECT 
         r.id,
-        r.registration_number,
+        CONCAT('REG-', DATE_FORMAT(r.visit_date, '%Y%m%d'), '-', LPAD(r.id, 3, '0')) AS registration_number,
         r.patient_id,
         p.name AS patient_name,
         p.medical_record_number,
@@ -47,8 +47,9 @@ const getRegistrations = async (req, res) => {
         poly.name AS polyclinic_name,
         r.doctor_id,
         doc.name AS doctor_name,
-        r.registration_date,
-        r.complaint,
+        r.visit_date AS registration_date,
+        r.payment_method,
+        r.chief_complaint AS complaint,
         r.status,
         q.id AS queue_id,
         q.queue_number,
@@ -81,7 +82,7 @@ const getRegistrationById = async (req, res) => {
     const query = `
       SELECT 
         r.id,
-        r.registration_number,
+        CONCAT('REG-', DATE_FORMAT(r.visit_date, '%Y%m%d'), '-', LPAD(r.id, 3, '0')) AS registration_number,
         r.patient_id,
         p.name AS patient_name,
         p.medical_record_number,
@@ -91,8 +92,9 @@ const getRegistrationById = async (req, res) => {
         poly.name AS polyclinic_name,
         r.doctor_id,
         doc.name AS doctor_name,
-        r.registration_date,
-        r.complaint,
+        r.visit_date AS registration_date,
+        r.payment_method,
+        r.chief_complaint AS complaint,
         r.status,
         q.id AS queue_id,
         q.queue_number,
@@ -127,40 +129,27 @@ const createRegistration = async (req, res) => {
   try {
     await connection.beginTransaction();
 
-    const { patient_id, polyclinic_id, doctor_id, complaint } = req.body;
+    const { patient_id, polyclinic_id, doctor_id, complaint, payment_method } = req.body;
 
     if (!patient_id || !polyclinic_id || !doctor_id) {
       await connection.rollback();
       return errorResponse(res, 'Pasien, Poliklinik, dan Dokter wajib dipilih.', null, 400);
     }
 
-    // 1. Generate Registration Number (Format: REG-YYYYMMDD-001)
-    const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const [lastReg] = await connection.query(
-      "SELECT registration_number FROM registrations WHERE registration_number LIKE ? ORDER BY id DESC LIMIT 1",
-      [`REG-${todayStr}-%`]
-    );
-
-    let nextNumber = 1;
-    if (lastReg.length > 0) {
-      const parts = lastReg[0].registration_number.split('-');
-      if (parts.length === 3) {
-        nextNumber = parseInt(parts[2], 10) + 1;
-      }
-    }
-    const registrationNumber = `REG-${todayStr}-${String(nextNumber).padStart(3, '0')}`;
     const todayDate = new Date().toISOString().slice(0, 10);
+    const payMethod = payment_method || 'Umum';
+    const chiefComplaint = complaint || '';
 
-    // 2. Insert into registrations table
+    // 1. Insert into registrations table
     const [regResult] = await connection.query(
-      `INSERT INTO registrations (registration_number, patient_id, polyclinic_id, doctor_id, registration_date, complaint, status)
-       VALUES (?, ?, ?, ?, ?, ?, 'Waiting')`,
-      [registrationNumber, patient_id, polyclinic_id, doctor_id, todayDate, complaint || '']
+      `INSERT INTO registrations (patient_id, doctor_id, polyclinic_id, visit_date, payment_method, chief_complaint, status)
+       VALUES (?, ?, ?, ?, ?, ?, 'Menunggu')`,
+      [patient_id, doctor_id, polyclinic_id, todayDate, payMethod, chiefComplaint]
     );
 
     const registrationId = regResult.insertId;
 
-    // 3. Generate Queue Number per Polyclinic (Format: A001, B001, dll)
+    // 2. Generate Queue Number per Polyclinic (Format: A001, B001, dll)
     const polyPrefixes = { 1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E' };
     const prefix = polyPrefixes[polyclinic_id] || 'A';
 
@@ -179,9 +168,9 @@ const createRegistration = async (req, res) => {
     }
     const queueNumber = `${prefix}${String(queueSeq).padStart(3, '0')}`;
 
-    // 4. Insert into queues table
-    const [queueResult] = await connection.query(
-      `INSERT INTO queues (registration_id, queue_number, status) VALUES (?, ?, 'Waiting')`,
+    // 3. Insert into queues table
+    await connection.query(
+      `INSERT INTO queues (registration_id, queue_number, status) VALUES (?, ?, 'Menunggu')`,
       [registrationId, queueNumber]
     );
 
@@ -190,9 +179,12 @@ const createRegistration = async (req, res) => {
     // Fetch detail data pendaftaran yang baru dibuat
     const [createdData] = await db.query(
       `SELECT 
-        r.id, r.registration_number, r.patient_id, p.name AS patient_name, p.medical_record_number,
+        r.id,
+        CONCAT('REG-', DATE_FORMAT(r.visit_date, '%Y%m%d'), '-', LPAD(r.id, 3, '0')) AS registration_number,
+        r.patient_id, p.name AS patient_name, p.medical_record_number,
         r.polyclinic_id, poly.name AS polyclinic_name, r.doctor_id, doc.name AS doctor_name,
-        r.registration_date, r.complaint, r.status, q.id AS queue_id, q.queue_number, q.status AS queue_status
+        r.visit_date AS registration_date, r.chief_complaint AS complaint, r.status,
+        q.id AS queue_id, q.queue_number, q.status AS queue_status
        FROM registrations r
        JOIN patients p ON r.patient_id = p.id
        JOIN polyclinics poly ON r.polyclinic_id = poly.id
@@ -214,7 +206,7 @@ const createRegistration = async (req, res) => {
 };
 
 /**
- * Update Registration Status (Waiting / In Examination / Completed / Cancelled)
+ * Update Registration Status (Menunggu / Sedang Diperiksa / Selesai / Dibatalkan)
  * Endpoint: PUT /api/registrations/:id/status
  */
 const updateRegistrationStatus = async (req, res) => {
@@ -222,26 +214,35 @@ const updateRegistrationStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const validStatuses = ['Waiting', 'In Examination', 'Completed', 'Cancelled'];
+    const validStatuses = ['Menunggu', 'Sedang Diperiksa', 'Selesai', 'Dibatalkan', 'Waiting', 'In Examination', 'Completed', 'Cancelled'];
     if (!validStatuses.includes(status)) {
       return errorResponse(res, 'Status pendaftaran tidak valid.', null, 400);
     }
+
+    // Normalisasi status ke Bahasa Indonesia yang tersimpan di DB
+    let dbStatus = status;
+    if (status === 'Waiting') dbStatus = 'Menunggu';
+    if (status === 'In Examination') dbStatus = 'Sedang Diperiksa';
+    if (status === 'Completed') dbStatus = 'Selesai';
+    if (status === 'Cancelled') dbStatus = 'Dibatalkan';
 
     const [existing] = await db.query('SELECT id FROM registrations WHERE id = ?', [id]);
     if (existing.length === 0) {
       return errorResponse(res, 'Data pendaftaran tidak ditemukan.', null, 404);
     }
 
-    await db.query('UPDATE registrations SET status = ? WHERE id = ?', [status, id]);
+    await db.query('UPDATE registrations SET status = ? WHERE id = ?', [dbStatus, id]);
 
-    // Jika dibatalkan atau selesai, update antrean juga
-    if (status === 'Cancelled') {
-      await db.query("UPDATE queues SET status = 'Skipped' WHERE registration_id = ?", [id]);
-    } else if (status === 'Completed') {
-      await db.query("UPDATE queues SET status = 'Completed', completed_at = NOW() WHERE registration_id = ?", [id]);
+    // Update antrean
+    if (dbStatus === 'Dibatalkan') {
+      await db.query("UPDATE queues SET status = 'Lewat' WHERE registration_id = ?", [id]);
+    } else if (dbStatus === 'Selesai') {
+      await db.query("UPDATE queues SET status = 'Selesai' WHERE registration_id = ?", [id]);
+    } else if (dbStatus === 'Sedang Diperiksa') {
+      await db.query("UPDATE queues SET status = 'Melayani' WHERE registration_id = ?", [id]);
     }
 
-    return successResponse(res, null, `Status pendaftaran berhasil diubah menjadi ${status}.`);
+    return successResponse(res, null, `Status pendaftaran berhasil diubah menjadi ${dbStatus}.`);
 
   } catch (error) {
     console.error('Error updateRegistrationStatus:', error);
