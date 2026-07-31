@@ -61,17 +61,17 @@ export default function PatientHistoryModal({ show, patient, onClose }) {
         {/* Header */}
         <div className="p-6 bg-emerald-600 text-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-600/30 rounded-xl border border-blue-500/30 flex items-center justify-center">
-              <History className="w-5 h-5 text-blue-400" />
+            <div className="w-10 h-10 bg-white/10 rounded-xl border border-white/20 flex items-center justify-center">
+              <History className="w-5 h-5 text-white" />
             </div>
             <div>
               <h3 className="font-bold text-lg leading-tight text-white">Riwayat Rekam Medis Pasien</h3>
-              <p className="text-white-400 text-xs mt-0.5 font-mono">
+              <p className="text-white/80 text-xs mt-0.5 font-mono">
                 {patient.name} | RM: {patient.medical_record_number}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer">
+          <button onClick={onClose} className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>

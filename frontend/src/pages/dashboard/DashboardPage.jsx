@@ -23,24 +23,36 @@ import {
   ShieldCheck
 } from 'lucide-react';
 
+const MONTH_NAMES = [
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+];
+
 export default function DashboardPage({ setActiveTab }) {
   const { user } = useAuth();
+  const now = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+
   const [summary, setSummary] = useState({
+    availableYears: [now.getFullYear()],
     totalPatients: 0,
     todayPatients: 0,
-    todayQueues: 0,
+    periodPatients: 0,
+    periodQueues: 0,
     waitingPatients: 0,
     completedPatients: 0,
+    polyclinicStats: [],
     doctors: [],
     polyclinics: [],
     roleUsers: []
   });
   const [loading, setLoading] = useState(true);
 
-  const fetchSummary = async () => {
+  const fetchSummary = async (m = selectedMonth, y = selectedYear) => {
     setLoading(true);
     try {
-      const response = await api.get('/dashboard/summary');
+      const response = await api.get(`/dashboard/summary?month=${m}&year=${y}`);
       if (response.success) {
         setSummary(response.data);
       }
@@ -51,8 +63,16 @@ export default function DashboardPage({ setActiveTab }) {
     }
   };
 
+  const handleResetToToday = () => {
+    const curM = now.getMonth() + 1;
+    const curY = now.getFullYear();
+    setSelectedMonth(curM);
+    setSelectedYear(curY);
+    fetchSummary(curM, curY);
+  };
+
   useEffect(() => {
-    fetchSummary();
+    fetchSummary(selectedMonth, selectedYear);
   }, []);
 
   const formattedDate = new Date().toLocaleDateString('id-ID', {
@@ -61,6 +81,10 @@ export default function DashboardPage({ setActiveTab }) {
     month: 'long',
     day: 'numeric'
   });
+
+  const availableYearsList = Array.isArray(summary.availableYears) && summary.availableYears.length > 0
+    ? summary.availableYears
+    : [now.getFullYear()];
 
   return (
     <div className="space-y-6">
@@ -84,14 +108,57 @@ export default function DashboardPage({ setActiveTab }) {
           </p>
         </div>
 
-        <button
-          onClick={fetchSummary}
-          disabled={loading}
-          className="flex items-center gap-2 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition-colors border border-slate-300 shadow-xs cursor-pointer"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-blue-600' : 'text-slate-500'}`} />
-          <span>Refresh Data</span>
-        </button>
+        {/* Filter Periode Laporan Bulanan */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-lg border border-slate-200 text-xs">
+            <Calendar className="w-4 h-4 text-blue-800 shrink-0" />
+            <span className="font-semibold text-slate-700">Periode:</span>
+            <select
+              value={selectedMonth}
+              onChange={(e) => {
+                const m = parseInt(e.target.value);
+                setSelectedMonth(m);
+                fetchSummary(m, selectedYear);
+              }}
+              className="bg-white border border-slate-300 rounded px-2 py-1 font-bold text-slate-900 outline-none focus:border-blue-700 cursor-pointer"
+            >
+              {MONTH_NAMES.map((name, idx) => (
+                <option key={idx + 1} value={idx + 1}>{name}</option>
+              ))}
+            </select>
+
+            <select
+              value={selectedYear}
+              onChange={(e) => {
+                const y = parseInt(e.target.value);
+                setSelectedYear(y);
+                fetchSummary(selectedMonth, y);
+              }}
+              className="bg-white border border-slate-300 rounded px-2 py-1 font-bold text-slate-900 outline-none focus:border-blue-700 cursor-pointer"
+            >
+              {availableYearsList.map((yr) => (
+                <option key={yr} value={yr}>{yr}</option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            onClick={handleResetToToday}
+            className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+            title="Kembali ke Bulan Ini"
+          >
+            Hari Ini
+          </button>
+
+          <button
+            onClick={() => fetchSummary(selectedMonth, selectedYear)}
+            disabled={loading}
+            className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition-colors border border-slate-300 shadow-xs cursor-pointer"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-blue-600' : 'text-slate-500'}`} />
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
 
       {/* ROLE VIEW 1: DOKTER */}
@@ -104,7 +171,7 @@ export default function DashboardPage({ setActiveTab }) {
                 <h3 className="text-3xl font-bold text-amber-600 mt-1">
                   {loading ? '...' : summary.waitingPatients}
                 </h3>
-                <p className="text-[11px] text-amber-700 mt-1">Pasien siap di ruang tunggu</p>
+                <p className="text-[11px] text-amber-700 mt-1">Periode {MONTH_NAMES[selectedMonth - 1]} {selectedYear}</p>
               </div>
               <div className="p-3 bg-amber-100 text-amber-700 rounded-xl">
                 <Clock className="w-6 h-6" />
@@ -117,7 +184,7 @@ export default function DashboardPage({ setActiveTab }) {
                 <h3 className="text-3xl font-bold text-teal-700 mt-1">
                   {loading ? '...' : summary.completedPatients}
                 </h3>
-                <p className="text-[11px] text-teal-700 mt-1">Pemeriksaan SOAP selesai hari ini</p>
+                <p className="text-[11px] text-teal-700 mt-1">Periode {MONTH_NAMES[selectedMonth - 1]} {selectedYear}</p>
               </div>
               <div className="p-3 bg-teal-100 text-teal-700 rounded-xl">
                 <CheckCircle2 className="w-6 h-6" />
@@ -126,11 +193,11 @@ export default function DashboardPage({ setActiveTab }) {
 
             <div className="bg-white p-5 rounded-xl border border-blue-200 bg-blue-50/20 shadow-sm flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-blue-800">Total Kunjungan Poli Hari Ini</p>
+                <p className="text-xs font-medium text-blue-800">Total Kunjungan Pasien</p>
                 <h3 className="text-3xl font-bold text-blue-800 mt-1">
-                  {loading ? '...' : summary.todayPatients}
+                  {loading ? '...' : summary.periodPatients}
                 </h3>
-                <p className="text-[11px] text-blue-700 mt-1">Pasien berobat hari ini</p>
+                <p className="text-[11px] text-blue-700 mt-1">{MONTH_NAMES[selectedMonth - 1]} {selectedYear} • Hari ini: <strong>{summary.todayPatients}</strong></p>
               </div>
               <div className="p-3 bg-blue-100 text-blue-700 rounded-xl">
                 <Stethoscope className="w-6 h-6" />
@@ -164,11 +231,11 @@ export default function DashboardPage({ setActiveTab }) {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-white p-5 rounded-xl border border-emerald-200 bg-emerald-50/20 shadow-sm flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-emerald-800">Pendaftaran Kunjungan Hari Ini</p>
+                <p className="text-xs font-medium text-emerald-800">Total Kunjungan Pasien</p>
                 <h3 className="text-3xl font-bold text-emerald-700 mt-1">
-                  {loading ? '...' : summary.todayPatients}
+                  {loading ? '...' : summary.periodPatients}
                 </h3>
-                <p className="text-[11px] text-emerald-600 mt-1">Pasien telah didaftarkan ke Poli</p>
+                <p className="text-[11px] text-emerald-600 mt-1">{MONTH_NAMES[selectedMonth - 1]} {selectedYear} • Hari ini: <strong>{summary.todayPatients}</strong></p>
               </div>
               <div className="p-3 bg-emerald-100 text-emerald-700 rounded-xl">
                 <UserCheck className="w-6 h-6" />
@@ -179,9 +246,9 @@ export default function DashboardPage({ setActiveTab }) {
               <div>
                 <p className="text-xs font-medium text-purple-800">Total Nomor Antrean Terbit</p>
                 <h3 className="text-3xl font-bold text-purple-800 mt-1">
-                  {loading ? '...' : summary.todayQueues}
+                  {loading ? '...' : summary.periodQueues}
                 </h3>
-                <p className="text-[11px] text-purple-700 mt-1">Nomor antrean A001, A002, dst.</p>
+                <p className="text-[11px] text-purple-700 mt-1">Periode {MONTH_NAMES[selectedMonth - 1]} {selectedYear}</p>
               </div>
               <div className="p-3 bg-purple-100 text-purple-700 rounded-xl">
                 <ListOrdered className="w-6 h-6" />
@@ -244,42 +311,42 @@ export default function DashboardPage({ setActiveTab }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-500">Total Pasien</span>
+                <span className="text-xs font-medium text-slate-500">Master Pasien</span>
                 <div className="p-2 bg-blue-50 text-blue-700 rounded-lg">
                   <Users className="w-4 h-4" />
                 </div>
               </div>
               <div className="mt-4">
                 <h3 className="text-2xl font-bold text-slate-900">{loading ? '...' : summary.totalPatients}</h3>
-                <p className="text-[11px] text-slate-500 mt-1">Master pasien terdaftar</p>
+                <p className="text-[11px] text-slate-500 mt-1">Total terdaftar di klinik</p>
               </div>
             </div>
 
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-500">Pasien Hari Ini</span>
+                <span className="text-xs font-medium text-slate-500">Kunjungan Pasien</span>
                 <div className="p-2 bg-emerald-50 text-emerald-700 rounded-lg">
                   <UserCheck className="w-4 h-4" />
                 </div>
               </div>
               <div className="mt-4">
-                <h3 className="text-2xl font-bold text-slate-900">{loading ? '...' : summary.todayPatients}</h3>
+                <h3 className="text-2xl font-bold text-slate-900">{loading ? '...' : summary.periodPatients}</h3>
                 <p className="text-[11px] text-emerald-600 font-medium mt-1 flex items-center gap-0.5">
-                  <ArrowUpRight className="w-3 h-3" /> Total Kunjungan
+                  <ArrowUpRight className="w-3 h-3" /> {MONTH_NAMES[selectedMonth - 1]} {selectedYear} • Hari ini: <strong>{summary.todayPatients}</strong>
                 </p>
               </div>
             </div>
 
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-500">Antrean Hari Ini</span>
+                <span className="text-xs font-medium text-slate-500">Antrean Terbit</span>
                 <div className="p-2 bg-slate-100 text-slate-700 rounded-lg">
                   <ListOrdered className="w-4 h-4" />
                 </div>
               </div>
               <div className="mt-4">
-                <h3 className="text-2xl font-bold text-slate-900">{loading ? '...' : summary.todayQueues}</h3>
-                <p className="text-[11px] text-slate-500 mt-1">Nomor antrean terbit</p>
+                <h3 className="text-2xl font-bold text-slate-900">{loading ? '...' : summary.periodQueues}</h3>
+                <p className="text-[11px] text-slate-500 mt-1">{MONTH_NAMES[selectedMonth - 1]} {selectedYear}</p>
               </div>
             </div>
 
@@ -292,7 +359,7 @@ export default function DashboardPage({ setActiveTab }) {
               </div>
               <div className="mt-4">
                 <h3 className="text-2xl font-bold text-amber-600">{loading ? '...' : summary.waitingPatients}</h3>
-                <p className="text-[11px] text-amber-700 font-medium mt-1">Menunggu pelayanan</p>
+                <p className="text-[11px] text-amber-700 font-medium mt-1">{MONTH_NAMES[selectedMonth - 1]} {selectedYear}</p>
               </div>
             </div>
 
@@ -305,7 +372,7 @@ export default function DashboardPage({ setActiveTab }) {
               </div>
               <div className="mt-4">
                 <h3 className="text-2xl font-bold text-teal-700">{loading ? '...' : summary.completedPatients}</h3>
-                <p className="text-[11px] text-teal-700 font-medium mt-1">Pemeriksaan selesai</p>
+                <p className="text-[11px] text-teal-700 font-medium mt-1">{MONTH_NAMES[selectedMonth - 1]} {selectedYear}</p>
               </div>
             </div>
           </div>
