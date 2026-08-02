@@ -34,6 +34,7 @@ app.use('/api/registrations', registrationRoutes); // /api/registrations (Pendaf
 app.use('/api/queues', queueRoutes);               // /api/queues (Kelola & Panggil Antrean)
 app.use('/api/medical-records', medicalRecordRoutes); // /api/medical-records (Rekam Medis SOAP)
 
+// Entrypoint Server Nexa Clinic
 app.get('/', (req, res) => {
   res.json({
     success: true,
